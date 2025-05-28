@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  email-cron:
+    build: .
+    image: email-cron:latest
+    container_name: email-cron-container
+    restart: always
+    volumes:
+      - ./checkConnection.php:/app/checkConnection.php
+      - ./composer.json:/app/composer.json
+    networks:
+      - afyacall_core_network
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+
+networks:
+  afyacall_core_network:
+    external: true

@@ -1,0 +1,70 @@
+# ----------------------
+# STAGE 1: Builder
+# ----------------------
+FROM ubuntu:20.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    KANNEL_VERSION=1.4.5 \
+    KANNEL_PREFIX=/usr/local/kannel
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpcre3-dev \
+    libxml2-dev \
+    libmysqlclient-dev \
+    libssl-dev \
+    autoconf automake libtool \
+    flex bison \
+    wget curl \
+    ca-certificates \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src
+
+# Download & extract
+RUN wget --no-check-certificate https://www.kannel.org/download/${KANNEL_VERSION}/gateway-${KANNEL_VERSION}.tar.gz \
+    && tar -xzf gateway-${KANNEL_VERSION}.tar.gz \
+    && rm gateway-${KANNEL_VERSION}.tar.gz
+
+WORKDIR /usr/src/gateway-${KANNEL_VERSION}
+
+# Remove wmlscript and patch build system
+RUN rm -rf wmlscript \
+    && sed -i '/wmlscript/d' Makefile.am \
+    && sed -i '/wmlscript/d' Makefile.in \
+    && autoreconf -fi \
+    && ./configure --prefix=${KANNEL_PREFIX} \
+    && make -j"$(nproc)" \
+    && make install
+
+# ----------------------
+# STAGE 2: Runtime
+# ----------------------
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    KANNEL_PREFIX=/usr/local/kannel
+
+# Runtime deps only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpcre3 libxml2 libmysqlclient21 libssl1.1 \
+    net-tools ca-certificates tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy from builder
+COPY --from=builder /usr/local/kannel /usr/local/kannel
+
+RUN mkdir -p /etc/kannel /var/log/kannel
+COPY scripts/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+WORKDIR /usr/local/kannel
+
+EXPOSE 13000 13001 13002
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD netstat -tuln | grep -q ':13000' || exit 1
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

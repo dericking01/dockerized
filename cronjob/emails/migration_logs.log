@@ -1,0 +1,24 @@
+🔄 [2025-04-28 12:09:50] Rolling back migration: database/migrations/2025_04_28_102630_create_bot_subscriptions_table.php
+Rolling back: 2025_04_28_102630_create_bot_subscriptions_table
+Rolled back:  2025_04_28_102630_create_bot_subscriptions_table (43.41ms)
+🚀 [2025-04-28 12:10:33] Running migration: database/migrations/2025_04_28_102630_create_bot_subscriptions_table.php
+Migrating: 2025_04_28_102630_create_bot_subscriptions_table
+Migrated:  2025_04_28_102630_create_bot_subscriptions_table (4.52ms)
+🔄 [2025-04-28 12:33:15] Rolling back migration: database/migrations/2025_04_28_102630_create_bot_subscriptions_table.php
+Rolling back: 2025_04_28_102630_create_bot_subscriptions_table
+Rolled back:  2025_04_28_102630_create_bot_subscriptions_table (9.05ms)
+🚀 [2025-04-28 12:38:49] Running migration: database/migrations/2025_04_28_102630_create_bot_subscriptions_table.php
+Migrating: 2025_04_28_102630_create_bot_subscriptions_table
+Migrated:  2025_04_28_102630_create_bot_subscriptions_table (34.91ms)
+🔄 [2025-04-28 12:38:55] Rolling back migration: database/migrations/2025_04_28_102630_create_bot_subscriptions_table.php
+Rolling back: 2025_04_28_102630_create_bot_subscriptions_table
+Rolled back:  2025_04_28_102630_create_bot_subscriptions_table (9.09ms)
+🚀 [2025-04-28 12:38:58] Running migration: database/migrations/2025_04_28_102630_create_bot_subscriptions_table.php
+Migrating: 2025_04_28_102630_create_bot_subscriptions_table
+Migrated:  2025_04_28_102630_create_bot_subscriptions_table (6.23ms)
+🔄 [2025-04-29 18:00:56] Rolling back migration: database/migrations/2025_04_28_102630_create_bot_subscriptions_table.php
+Rolling back: 2025_04_28_102630_create_bot_subscriptions_table
+Rolled back:  2025_04_28_102630_create_bot_subscriptions_table (9.97ms)
+🚀 [2025-04-29 18:01:07] Running migration: database/migrations/2025_04_28_102630_create_bot_subscriptions_table.php
+Migrating: 2025_04_28_102630_create_bot_subscriptions_table
+Migrated:  2025_04_28_102630_create_bot_subscriptions_table (7.83ms)

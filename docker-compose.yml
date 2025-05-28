@@ -1,0 +1,11 @@
+services:
+  php-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php_script_runner
+    volumes:
+      - ./scripts:/usr/src/app/scripts
+      - /home/derrick/files:/home/derrick/files
+    stdin_open: true
+    tty: true

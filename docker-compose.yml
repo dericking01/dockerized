@@ -1,0 +1,35 @@
+services:
+  bearerbox:
+    image: localhost:5000/kannel:1.4.5
+    container_name: kannel_bearerbox
+    command: bearerbox /etc/kannel/kannel.conf
+    restart: unless-stopped
+    ports:
+      - "6008:6008"  # Admin port
+      - "6009:6009"  # smsbox connection port
+    volumes:
+      - ./kannel.conf:/etc/kannel/kannel.conf
+      - ./logs:/var/log/kannel
+    environment:
+      - TZ=Africa/Dar_es_Salaam
+    networks:
+      - kannel-net
+  smsbox:
+    image: localhost:5000/kannel:1.4.5
+    container_name: kannel_smsbox
+    command: smsbox /etc/kannel/kannel.conf
+    restart: unless-stopped
+    ports:
+      - "6013:6013"  # sendsms port
+    volumes:
+      - ./kannel.conf:/etc/kannel/kannel.conf
+      - ./logs:/var/log/kannel
+    depends_on:
+      - bearerbox
+    environment:
+      - TZ=Africa/Dar_es_Salaam
+    networks:
+      - kannel-net
+networks:
+  kannel-net:
+    driver: bridge

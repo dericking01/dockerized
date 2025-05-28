@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  bearerbox:
+    image: localhost:5000/kannel:1.4.5
+    command: bearerbox /etc/kannel/kannel.conf
+    ports:
+      - "6008:6008"
+      - "6009:6009"
+    volumes:
+      - ./kannel.conf:/etc/kannel/kannel.conf
+      - ./logs:/var/log/kannel
+    environment:
+      - TZ=UTC
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  smsbox:
+    image: localhost:5000/kannel:1.4.5
+    command: smsbox /etc/kannel/kannel.conf
+    ports:
+      - "6013:6013"
+    volumes:
+      - ./kannel.conf:/etc/kannel/kannel.conf
+      - ./logs:/var/log/kannel
+    depends_on:
+      - bearerbox
+    environment:
+      - TZ=Africa/Nairobi
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+networks:
+  default:
+    driver: overlay
+    name: kannel_net

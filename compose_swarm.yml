@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  bearerbox:
+    image: localhost:5000/kannel:1.4.5
+    command: bearerbox /etc/kannel/kannel.conf
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1G
+        reservations:
+          memory: 512M
+    ports:
+      - target: 6008
+        published: 6008
+        protocol: tcp
+        mode: host
+      - target: 6009
+        published: 6009
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /home/docker/kannel/kannel.conf
+        target: /etc/kannel/kannel.conf
+        read_only: true
+      - type: bind
+        source: /home/docker/kannel/logs
+        target: /var/log/kannel
+    environment:
+      - TZ=Africa/Nairobi
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6008/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - kannel_net
+
+  smsbox:
+    image: localhost:5000/kannel:1.4.5
+    command: smsbox /etc/kannel/kannel.conf
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    ports:
+      - target: 6013
+        published: 6013
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /home/docker/kannel/kannel.conf
+        target: /etc/kannel/kannel.conf
+        read_only: true
+      - type: bind
+        source: /home/docker/kannel/logs
+        target: /var/log/kannel
+    environment:
+      - TZ=Africa/Nairobi
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z bearerbox 6009 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - bearerbox
+    networks:
+      - kannel_net
+
+networks:
+  kannel_net:
+    driver: overlay
+    attachable: true
+    driver_opts:
+      encrypted: ""

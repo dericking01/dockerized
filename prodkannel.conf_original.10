@@ -1,0 +1,237 @@
+#kannel config
+
+#
+# Sample configuration file for Kannel bearerbox on Debian.
+# See the documentation for explanations of fields.
+#
+
+# HTTP administration is disabled by default. Make sure you set the
+# password if you enable it.
+
+
+#
+# Sample configuration file for Kannel bearerbox on Debian.
+# See the documentation for explanations of fields.
+#
+
+# HTTP administration is disabled by default. Make sure you set the
+# password if you enable it.
+
+group = smsc
+smsc = smpp
+smsc-id = vodacom
+host = 41.223.4.174
+port = 6695
+transceiver-mode = "true"
+smsc-username = afyacallhs
+smsc-password = JB7aDrV#
+system-type = smpp
+#service-type = 'test'
+interface-version = 52
+address-range = ''
+msg-id-type = 0
+log-level = 1
+throughput = 100
+max-pending-submits = 100
+
+group = core
+admin-port = 6000
+smsbox-port = 6001
+admin-password = afyacall
+#admin-deny-ip = "*.*.*.*"
+#admin-allow-ip = ""
+#wdp-interface-name = "*"
+#box-deny-ip = "*.*.*.*"
+#box-allow-ip = "127.0.0.1"
+dlr-storage = mysql
+access-log = "/var/log/kannel/bearerbox-access-voda.log"
+store-file = "/var/log/kannel/kannel-voda.store"
+log-file = "/var/log/kannel/bearerbox-voda.log"
+
+
+#--- mysql connection
+group = mysql-connection
+id = afyadlr
+host = localhost
+username = kanneluser
+password = KannEl@123*
+database = sms_dlr
+max-connections = 1
+
+
+#---- DLR table structure
+group = dlr-db
+id = afyadlr
+table = dlr_vodacom
+field-smsc = smsc
+field-timestamp = ts
+field-destination = destination
+field-source = source
+field-service = service
+field-url = url
+field-mask = mask
+field-status = status
+field-boxc-id = boxc
+
+group = smsbox
+bearerbox-host = localhost
+sendsms-port = 6013
+global-sender = 6013
+log-level = 1
+log-file = "/var/log/kannel/smsbox-vodacom.log"
+access-log = "/var/log/kannel/smsbox-access-vodacom.log"
+
+group = sendsms-user
+username = afya
+password = Afya4017
+default-smsc = vodacom
+
+group = sms-service
+keyword = AFYA
+post-url = "http://192.168.1.10/api/sms/receivedsms?service=%k&category=%s&sender=%p&timestamp=%t"
+assume-plain-text = true
+concatenation = true
+catch-all = true
+accept-x-kannel-headers = true
+
+
+group = sms-service
+keyword = ONDOA
+post-url = "http://192.168.1.10/api/sms/receivedsms?service=%k&category=%s&sender=%p&timestamp=%t"
+assume-plain-text = true
+concatenation = true
+catch-all = true
+accept-x-kannel-headers = true
+
+group = sms-service
+keyword = nop
+text = "You asked nothing, I did it!"
+catch-all = false
+
+group = sms-service
+keyword = default
+post-url = "http://192.168.1.10/api/ai/receivedsms?service=%k&category=%s&sender=%p&timestamp=%t&text=%a"
+assume-plain-text = true
+concatenation = true
+catch-all = true
+accept-x-kannel-headers = true
+
+#kannel config
+
+#
+# Sample configuration file for Kannel bearerbox on Debian.
+# See the documentation for explanations of fields.
+#
+
+# HTTP administration is disabled by default. Make sure you set the
+# password if you enable it.
+
+
+#
+# Sample configuration file for Kannel bearerbox on Debian.
+# See the documentation for explanations of fields.
+#
+
+# HTTP administration is disabled by default. Make sure you set the
+# password if you enable it.
+
+group = smsc
+smsc = smpp
+smsc-id = vodacom
+host = 41.223.4.174
+port = 6695
+transceiver-mode = "true"
+smsc-username = afyacallhs
+smsc-password = JB7aDrV#
+system-type = smpp
+#service-type = 'test'
+interface-version = 52
+address-range = ''
+msg-id-type = 0
+log-level = 1
+throughput = 100
+max-pending-submits = 100
+
+group = core
+admin-port = 6000
+smsbox-port = 6001
+admin-password = afyacall
+#admin-deny-ip = "*.*.*.*"
+#admin-allow-ip = ""
+#wdp-interface-name = "*"
+#box-deny-ip = "*.*.*.*"
+#box-allow-ip = "127.0.0.1"
+dlr-storage = mysql
+access-log = "/var/log/kannel/bearerbox-access-voda.log"
+store-file = "/var/log/kannel/kannel-voda.store"
+log-file = "/var/log/kannel/bearerbox-voda.log"
+
+
+#--- mysql connection
+group = mysql-connection
+id = afyadlr
+host = localhost
+username = kanneluser
+password = KannEl@123*
+database = sms_dlr
+max-connections = 1
+
+
+#---- DLR table structure
+group = dlr-db
+id = afyadlr
+table = dlr_vodacom
+field-smsc = smsc
+field-timestamp = ts
+field-destination = destination
+field-source = source
+field-service = service
+field-url = url
+field-mask = mask
+field-status = status
+field-boxc-id = boxc
+
+group = smsbox
+bearerbox-host = localhost
+#sendsms-port = 6013
+bearerbox-port = 6001
+global-sender = 15723
+log-level = 1
+log-file = "/var/log/kannel/smsbox-vodacom.log"
+access-log = "/var/log/kannel/smsbox-access-vodacom.log"
+
+group = sendsms-user
+username = afya
+password = Afya4017
+default-smsc = vodacom
+
+group = sms-service
+keyword = AFYA
+post-url = "http://192.168.1.10/api/sms/receivedsms?service=%k&category=%s&sender=%p&timestamp=%t"
+assume-plain-text = true
+concatenation = true
+catch-all = true
+accept-x-kannel-headers = true
+
+
+group = sms-service
+keyword = ONDOA
+post-url = "http://192.168.1.10/api/sms/receivedsms?service=%k&category=%s&sender=%p&timestamp=%t"
+assume-plain-text = true
+concatenation = true
+catch-all = true
+accept-x-kannel-headers = true
+
+group = sms-service
+keyword = nop
+text = "You asked nothing, I did it!"
+catch-all = false
+
+group = sms-service
+keyword = default
+post-url = "http://192.168.1.10/api/ai/receivedsms?service=%k&category=%s&sender=%p&timestamp=%t&text=%a"
+assume-plain-text = true
+concatenation = true
+catch-all = true
+accept-x-kannel-headers = true
+default-sender = "15723"

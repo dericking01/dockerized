@@ -1,0 +1,14 @@
+services:
+  rabbitmq:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: 197.250.15.155:5000/kannel-rebuild:1.4.5
+    container_name: 'kannel'
+    ports:
+        - '${APP_PORT_1:-6000}:6001'
+        - '${APP_PORT_2:-6001}:6001'
+    volumes:
+      - '${LOG_PATH:-./logs}:/var/log/kannel/'
+    restart: always

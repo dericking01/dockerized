@@ -22,6 +22,7 @@ RUN composer install || true
 # Setup cron job
 RUN echo "SHELL=/bin/bash\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" > /etc/cron.d/cronjob \
  && echo '*/20 * * * * bash -c "/usr/local/bin/php /app/checkConnection.php >> /var/log/cron.log 2>&1"' >> /etc/cron.d/cronjob \
+ && echo '0 2 * * 0 bash -c "/usr/local/bin/php /app/zipkannellogs.php >> /var/log/cron.log 2>&1"' >> /etc/cron.d/cronjob \
  && echo '* * * * * bash -c "curl -k https://core_nginx/cron/run >> /var/log/cron.log 2>&1"' >> /etc/cron.d/cronjob \
  && chmod 0644 /etc/cron.d/cronjob \
  && crontab /etc/cron.d/cronjob

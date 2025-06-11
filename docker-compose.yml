@@ -7,6 +7,7 @@ services:
     container_name: email-cron-container
     restart: always
     volumes:
+      - ./zipkannellogs.php:/app/zipkannellogs.php
       - ./checkConnection.php:/app/checkConnection.php
       - ./composer.json:/app/composer.json
     networks:

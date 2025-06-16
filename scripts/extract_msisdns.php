@@ -2,10 +2,10 @@
 <?php
 
 $inputFile = '/home/derrick/files/input.txt';
-$outputFile = '/home/derrick/files/output_750k_to_950k.csv';
+$outputFile = '/home/derrick/files/output_2280000_to_2380000.csv';
 
-$start = 750000;
-$limit = 200000;
+$start = 2280000;
+$limit = 100000;
 $currentLine = 0;
 $written = 0;
 

@@ -4,7 +4,7 @@ FROM php:8.2-cli
 # Install dependencies for PDO MySQL and CSV parsing
 RUN apt-get update && \
     apt-get install -y curl screen libzip-dev libpng-dev unzip libonig-dev libxml2-dev libpq-dev libssl-dev libmcrypt-dev gnupg \
-    && docker-php-ext-install pdo pdo_mysql
+    && docker-php-ext-install pdo pdo_mysql pcntl mbstring zip xml opcache bcmath
 
 # Set working directory
 WORKDIR /usr/src/app

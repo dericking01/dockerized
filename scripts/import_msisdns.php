@@ -7,7 +7,7 @@ $user = 'derrickdb';
 $password = 'Derrick#@!2023';
 $table = 'bot_campaigns';
 
-$csvPath = '/home/derrick/files/output_750k_to_950k.csv';
+$csvPath = '/home/derrick/files/output_2280000_to_2380000.csv';
 
 // Connect to the database
 try {

@@ -3,9 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: php_script_runner
+    image: php_script_runner:1.1.0
     volumes:
       - ./scripts:/usr/src/app/scripts
       - /home/derrick/files:/home/derrick/files
     stdin_open: true
     tty: true
+    environment:
+      - TZ=Africa/Dar_es_Salaam

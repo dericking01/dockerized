@@ -2,7 +2,7 @@
 
 # PostgreSQL Backup Script
 # Version: 1.2
-# Description: Creates compressed backups of PostgreSQL database and transfers to remote server
+# Description: Creates compressed backups of PostgreSQL database and transfers to remote server then cleans up old backups >3 days on remote server.
 # Usage: sudo -u postgres /usr/local/bin/pg_backup.sh
 
 # Environment Configuration
@@ -25,7 +25,10 @@ REMOTE_USER="derrick"
 REMOTE_HOST="192.168.1.10"
 REMOTE_DIR="/var/LocalBackups"
 LOG_FILE="/var/log/pg_backup.log"
-RETENTION_DAYS=7
+LOCAL_RETENTION_DAYS=31 # Retain local backups for 31 days
+REMOTE_RETENTION_DAYS=3 # Retain remote backups for 3 days
+
+# SSH Key for remote access
 SSH_KEY="~postgres/.ssh/id_ed25519"
 
 # Ensure running as postgres user
@@ -102,13 +105,13 @@ fi
 log "Backup successfully transferred to ${REMOTE_HOST}"
 
 # Local Cleanup
-log "Cleaning up old backups (keeping ${RETENTION_DAYS} days)..."
-find "${BACKUP_DIR}" -name "${DB_NAME}_*.sql.gz" -mtime +${RETENTION_DAYS} -delete
+log "Cleaning up old backups (keeping ${LOCAL_RETENTION_DAYS} days)..."
+find "${BACKUP_DIR}" -name "${DB_NAME}_*.sql.gz" -mtime +${LOCAL_RETENTION_DAYS} -delete
 
 # Remote Cleanup
 if ! ssh -o StrictHostKeyChecking=no -i "${SSH_KEY}" \
     "${REMOTE_USER}@${REMOTE_HOST}" \
-    "find ${REMOTE_DIR} -name '${DB_NAME}_*.sql.gz' -mtime +${RETENTION_DAYS} -delete"; then
+    "find ${REMOTE_DIR} -name '${DB_NAME}_*.sql.gz' -mtime +${REMOTE_RETENTION_DAYS} -delete"; then
     log "WARNING: Failed to clean up old backups on ${REMOTE_HOST}"
 fi
 

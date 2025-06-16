@@ -72,11 +72,31 @@ log "Successfully created backup (${BACKUP_SIZE}): ${BACKUP_PATH}"
 
 # Remote Transfer
 log "Transferring backup to ${REMOTE_HOST}..."
-if ! scp -o StrictHostKeyChecking=no -i "${SSH_KEY}" \
-    "${BACKUP_PATH}" \
-    "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/"; then
-    log "ERROR: Failed to transfer backup to ${REMOTE_HOST}"
-    exit 1
+# Split backup into 2GB chunks for large files
+if [ $(du -m "${BACKUP_PATH}" | cut -f1) -gt 2000 ]; then
+    log "Large backup detected, splitting into chunks..."
+    split -b 2G "${BACKUP_PATH}" "${BACKUP_PATH}.part."
+    
+    for part in "${BACKUP_PATH}.part."*; do
+        if ! scp -o StrictHostKeyChecking=no -i "${SSH_KEY}" \
+            "${part}" \
+            "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/"; then
+            log "ERROR: Failed to transfer backup part ${part}"
+            exit 1
+        fi
+    done
+    
+    # Reassemble on remote side
+    ssh -i "${SSH_KEY}" "${REMOTE_USER}@${REMOTE_HOST}" \
+        "cat ${REMOTE_DIR}/${BACKUP_FILE}.part.* > ${REMOTE_DIR}/${BACKUP_FILE} && rm ${REMOTE_DIR}/${BACKUP_FILE}.part.*"
+else
+    # Original transfer code for smaller files
+    if ! scp -o StrictHostKeyChecking=no -i "${SSH_KEY}" \
+        "${BACKUP_PATH}" \
+        "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/"; then
+        log "ERROR: Failed to transfer backup to ${REMOTE_HOST}"
+        exit 1
+    fi
 fi
 
 log "Backup successfully transferred to ${REMOTE_HOST}"

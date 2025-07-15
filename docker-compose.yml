@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   email-cron:
     build: .
@@ -7,16 +5,22 @@ services:
     container_name: email-cron-container
     restart: always
     volumes:
-      - ./zipkannellogs.php:/app/zipkannellogs.php
-      - ./checkConnection.php:/app/checkConnection.php
+      # Mount entire scripts folder
+      - ./scripts:/app/scripts
+
+      # Mount composer files
       - ./composer.json:/app/composer.json
+
+      # Mount persistent state file
+      - ./scripts/logs/.last_doctor_status:/app/scripts/logs/.last_doctor_status
+
     networks:
       - afyacall_core_network
+
     logging:
       options:
         max-size: "10m"
         max-file: "3"
-
 
 networks:
   afyacall_core_network:

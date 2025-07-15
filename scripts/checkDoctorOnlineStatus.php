@@ -5,7 +5,9 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/sendSmsAlert.php';
 
+// Load environment variables
 $env = parse_ini_file(__DIR__ . '/../.env');
 
 
@@ -106,6 +108,8 @@ try {
         $mail->Subject = $subject;
         $mail->Body = $body;
         $mail->send();
+        sendSmsAlert($currentCount, false);
+
         echo "🚨 Critical alert sent for $currentCount doctor(s) online.\n";
     }
 
@@ -143,6 +147,7 @@ try {
         $mail->Subject = $subject;
         $mail->Body = $body;
         $mail->send();
+        sendSmsAlert($currentCount, true);
         echo "✅ Recovery alert sent — $currentCount doctors online now.\n";
     }
 

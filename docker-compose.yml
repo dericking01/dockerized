@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   bearerbox:
     image: localhost:5000/kannel:1.4.5
@@ -6,7 +7,7 @@ services:
     restart: unless-stopped
     ports:
       - "6008:6008"  # Admin port
-      - "6009:6009"  # smsbox connection port
+      - "6009:6009"  # smsbox connection port (internal use)
     volumes:
       - ./kannel.conf:/etc/kannel/kannel.conf
       - ./logs:/var/log/kannel
@@ -14,13 +15,14 @@ services:
       - TZ=Africa/Dar_es_Salaam
     networks:
       - kannel-net
-  smsbox:
+
+  smsbox1:
     image: localhost:5000/kannel:1.4.5
-    container_name: kannel_smsbox
+    container_name: kannel_smsbox1
     command: smsbox /etc/kannel/kannel.conf
     restart: unless-stopped
     ports:
-      - "6013:6013"  # sendsms port
+      - "6013:6013"  # sendsms port exposed for this instance
     volumes:
       - ./kannel.conf:/etc/kannel/kannel.conf
       - ./logs:/var/log/kannel
@@ -30,6 +32,41 @@ services:
       - TZ=Africa/Dar_es_Salaam
     networks:
       - kannel-net
+
+  smsbox2:
+    image: localhost:5000/kannel:1.4.5
+    container_name: kannel_smsbox2
+    command: smsbox /etc/kannel/kannel.conf
+    restart: unless-stopped
+    ports:
+      - "6014:6013"  # maps host:6014 → container:6013
+    volumes:
+      - ./kannel.conf:/etc/kannel/kannel.conf
+      - ./logs:/var/log/kannel
+    depends_on:
+      - bearerbox
+    environment:
+      - TZ=Africa/Dar_es_Salaam
+    networks:
+      - kannel-net
+
+  smsbox3:
+    image: localhost:5000/kannel:1.4.5
+    container_name: kannel_smsbox3
+    command: smsbox /etc/kannel/kannel.conf
+    restart: unless-stopped
+    ports:
+      - "6015:6013"  # maps host:6015 → container:6013
+    volumes:
+      - ./kannel.conf:/etc/kannel/kannel.conf
+      - ./logs:/var/log/kannel
+    depends_on:
+      - bearerbox
+    environment:
+      - TZ=Africa/Dar_es_Salaam
+    networks:
+      - kannel-net
+
 networks:
   kannel-net:
     driver: bridge

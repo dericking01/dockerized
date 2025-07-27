@@ -14,6 +14,9 @@ services:
       # Mount persistent state file
       - ./scripts/logs/.last_doctor_status:/app/scripts/logs/.last_doctor_status
 
+      # Mount connectivity log file
+      - ./scripts/logs/cron_connection.log:/var/log/cron_connection.log
+
     networks:
       - afyacall_core_network
 

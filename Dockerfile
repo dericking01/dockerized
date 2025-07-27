@@ -44,7 +44,12 @@ RUN chmod 0644 /etc/cron.d/cronjob
 RUN crontab /etc/cron.d/cronjob
 
 # Create log file
-RUN touch /var/log/cron.log
+RUN touch /var/log/cron.log \
+ && touch /var/log/cron_connection.log \
+ && touch /var/log/cron_zipkannel.log \
+ && touch /var/log/cron_doctor.log \
+ && touch /var/log/cron_rotate.log
+
 
 # Run the command on container startup
 CMD ["cron", "-f"]

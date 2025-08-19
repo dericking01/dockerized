@@ -18,9 +18,10 @@ file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Script started\n", FI
 // === Configuration ===
 $ipPorts = [
     '197.250.9.191:23000' => 'ICG',
-    '197.250.9.149:6202'  => 'Middleware',
     '41.217.203.61:30010' => 'IPG',
-    '41.223.4.174:6695'   => 'SMSC'
+    '41.223.4.174:6695'  => 'SMSC_1',
+    '41.223.4.174:6696'   => 'SMSC_2',
+    '41.223.4.174:6691'   => 'SMSC_3',
 ];
 
 $toEmails = [
@@ -36,6 +37,8 @@ $toEmails = [
     'johnhaule@gmail.com',
     'wvmgata@afyacall.co.tz',
     'modamba@gmail.com',
+    'valencemuganda@gmail.com',
+    'njunwawamavoko@gmail.com',
 ];
 
 $fromEmail = 'alerts@afyacall.co.tz';

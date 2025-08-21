@@ -6,8 +6,9 @@ $db = 'afyacallproduction';
 $user = 'derrickdb';
 $password = 'Derrick#@!2023';
 $table = 'bot_campaigns';
+date_default_timezone_set('Africa/Dar_es_Salaam');
 
-$csvPath = '/home/derrick/files/output_2280000_to_2380000.csv';
+$csvPath = '/home/derrick/files/output_3600000_to_3610000.csv';
 
 // Connect to the database
 try {

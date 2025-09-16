@@ -1,6 +1,5 @@
 #!/usr/bin/php -q
 <?php
-
 date_default_timezone_set("Africa/Dar_es_Salaam");
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -8,16 +7,19 @@ use PHPMailer\PHPMailer\Exception;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// === Setup paths and logging ===
-$logFile = __DIR__ . '/logs/debug_checkDisk.log';
-$statusFile = __DIR__ . '/logs/disk_status.json';
-$cronLogFile = '/var/log/cron_disk.log';
+// === Setup paths and logging (PBX specific) ===
+$logFile      = __DIR__ . '/logs/debug_checkDisk_pbx.log';
+$statusFile   = __DIR__ . '/logs/disk_status_pbx.json';
+$cronLogFile  = '/var/log/cron_disk_pbx.log';
 
-file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Script started\n", FILE_APPEND);
+file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] PBX Script started\n", FILE_APPEND);
 
 // === Configuration ===
-$mountPoint = "/root"; // the partition to monitor
-$thresholds = [75, 85, 95, 98];
+$pbxHost      = "192.168.1.49";
+$pbxUser      = "root";
+$pbxPass      = "1nv3nt123";  // Consider using ssh keys instead of storing plaintext password!
+$mountPoint   = "/root";
+$thresholds   = [75, 85, 95, 98];
 
 $toEmails = [
     'derrick@afyacall.co.tz',
@@ -37,30 +39,32 @@ $toEmails = [
 ];
 
 $fromEmail = 'alerts@afyacall.co.tz';
-$fromName = 'AFYACALL DISK ALERTS';
-$smtpHost = 'mail.afyacall.co.tz';
-$smtpUser = 'alerts@afyacall.co.tz';
+$fromName  = 'AFYACALL PBX DISK ALERTS';
+$smtpHost  = 'mail.afyacall.co.tz';
+$smtpUser  = 'alerts@afyacall.co.tz';
 $smtpPassword = '321qaz!@#WSX';
-$smtpPort = 465;
+$smtpPort  = 465;
 
-// === Load Previous Status
+// === Load Previous Status ===
 $prevStatus = file_exists($statusFile) ? json_decode(file_get_contents($statusFile), true) : [];
-$prevLevel = $prevStatus['level'] ?? null;
-$time = date('Y-m-d H:i:s');
+$prevLevel  = $prevStatus['level'] ?? null;
+$time       = date('Y-m-d H:i:s');
 
-// === Disk Usage Check ===
+// === Disk Usage Check on PBX ===
+// NOTE: sshpass used for password login, better to setup key auth
+$cmd = "sshpass -p '$pbxPass' ssh -o StrictHostKeyChecking=no $pbxUser@$pbxHost \"df -h $mountPoint | awk 'NR==2 {print \\$5}'\"";
 $output = [];
-exec("df -h $mountPoint | awk 'NR==2 {print \$5}'", $output);
-$usedPercent = (int)str_replace('%', '', $output[0] ?? 0);
+exec($cmd, $output, $retval);
 
+$usedPercent = (int)str_replace('%', '', $output[0] ?? 0);
 $currentStatus = [
     'used_percent' => $usedPercent,
     'last_checked' => $time,
-    'level' => $prevLevel // will update below
+    'level'        => $prevLevel // will update below
 ];
 
 // Log disk usage
-file_put_contents($cronLogFile, "[$time] Disk usage on $mountPoint: $usedPercent%\n", FILE_APPEND);
+file_put_contents($cronLogFile, "[$time] PBX Disk usage on $mountPoint: $usedPercent%\n", FILE_APPEND);
 
 // === Email Function ===
 function sendAlertEmail($subject, $bodyHtml, $recipients, $fromName, $fromEmail, $smtpHost, $smtpUser, $smtpPassword, $smtpPort)
@@ -102,14 +106,13 @@ foreach ($thresholds as $t) {
 
 // === Alert / Recovery Logic ===
 if ($newLevel !== null && $newLevel !== $prevLevel) {
-    // === ALERT (send once per threshold) ===
+    // ALERT
     $body = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
-            <h2 style='color: #e74c3c;'>🚨 ALERT: Disk Usage Critical</h2>
-            <p style='font-size: 16px; color: #555;'>Hi Team,</p>
-            <p style='font-size: 16px;'>Disk usage on .200<strong>$mountPoint</strong> has reached <strong style='color:red;'>$usedPercent%</strong>.</p>
-            <p style='font-size: 15px;'>Threshold triggered: <strong>$newLevel%</strong></p>
-            <hr style='margin: 20px 0;'>
+            <h2 style='color: #e74c3c;'>🚨 ALERT: PBX SERVER Disk Usage Critical</h2>
+            <p>Disk usage on <strong>$mountPoint</strong> has reached <strong style='color:red;'>$usedPercent%</strong>.</p>
+            <p>Threshold triggered: <strong>$newLevel%</strong></p>
+            <hr>
             <p style='font-size: 14px; color: #888;'>🕒 Alert triggered on <strong>$time</strong></p>
             <p style='font-size: 14px; color: #999;'>This is an automated notification from the Afyacall Monitoring System.</p>
             <hr style='margin: 30px 0;'>
@@ -119,18 +122,18 @@ if ($newLevel !== null && $newLevel !== $prevLevel) {
             </p>
         </div>";
 
-    sendAlertEmail("🚨 ALERT: Disk Usage $usedPercent% on $mountPoint", $body, $toEmails, $fromName, $fromEmail, $smtpHost, $smtpUser, $smtpPassword, $smtpPort);
+    sendAlertEmail("🚨 PBX SERVER ALERT: Disk Usage $usedPercent% on $mountPoint", $body, $toEmails, $fromName, $fromEmail, $smtpHost, $smtpUser, $smtpPassword, $smtpPort);
 
     $currentStatus['level'] = $newLevel;
 
 } elseif ($prevLevel !== null && $usedPercent <= 70) {
-    // === RECOVERY (only if below 70% and was in alert before) ===
+    // RECOVERY
     $body = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
-            <h2 style='color: #27ae60;'>✅ Recovery Notice</h2>
-            <p style='font-size: 16px;'>Disk usage on .200<strong>$mountPoint</strong> has dropped to <strong style='color:green;'>$usedPercent%</strong>.</p>
-            <hr style='margin: 20px 0;'>
-            <p style='font-size: 14px; color: #888;'>🕒 Recovery recorded on <strong>$time</strong></p>
+            <h2 style='color: #27ae60;'>✅ PBX SERVER Recovery Notice</h2>
+            <p>Disk usage on <strong>$mountPoint</strong> has dropped to <strong style='color:green;'>$usedPercent%</strong>.</p>
+            <hr>
+            <p style='font-size: 14px; color: #888;'>🕒 Alert triggered on <strong>$time</strong></p>
             <p style='font-size: 14px; color: #999;'>This is an automated notification from the Afyacall Monitoring System.</p>
             <hr style='margin: 30px 0;'>
             <p style='font-size: 14px; color: #555;'>
@@ -139,12 +142,11 @@ if ($newLevel !== null && $newLevel !== $prevLevel) {
             </p>
         </div>";
 
-    sendAlertEmail("✅ RECOVERY: Disk Usage Normalized ($usedPercent%)", $body, $toEmails, $fromName, $fromEmail, $smtpHost, $smtpUser, $smtpPassword, $smtpPort);
+    sendAlertEmail("✅ PBX SERVER RECOVERY: Disk Usage Normalized ($usedPercent%)", $body, $toEmails, $fromName, $fromEmail, $smtpHost, $smtpUser, $smtpPassword, $smtpPort);
 
     $currentStatus['level'] = null;
 }
 
-// === Save new status
+// === Save new status ===
 file_put_contents($statusFile, json_encode($currentStatus, JSON_PRETTY_PRINT));
-
-file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Script finished\n", FILE_APPEND);
+file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] PBX Script finished\n", FILE_APPEND);

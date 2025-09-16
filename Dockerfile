@@ -33,7 +33,6 @@ RUN echo "SHELL=/bin/bash\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
  && echo '*/20 * * * * bash -c "/usr/local/bin/php /app/scripts/checkConnection.php >> /var/log/cron_connection.log 2>&1"' >> /etc/cron.d/cronjob \
  && echo '*/10 * * * * bash -c "/usr/local/bin/php /app/scripts/checkDisk.php >> /var/log/cron_disk.log 2>&1"' >> /etc/cron.d/cronjob \
  && echo '*/10 * * * * bash -c "/usr/local/bin/php /app/scripts/pbxCheckDisk.php >> /var/log/cron_disk_pbx.log 2>&1"' >> /etc/cron.d/cronjob \
- && echo '@reboot /app/scripts/status_summary_loop.sh &' >> /etc/cron.d/cronjob \
  && echo '0 2 * * 0 bash -c "/usr/local/bin/php /app/scripts/zipkannellogs.php >> /var/log/cron_zipkannel.log 2>&1"' >> /etc/cron.d/cronjob \
  && echo '*/15 * * * * bash -c "/usr/local/bin/php /app/scripts/checkDoctorOnlineStatus.php >> /var/log/cron_doctor.log 2>&1"' >> /etc/cron.d/cronjob \
  && echo '0 2 * * 0 bash -c "/app/scripts/rotate_logs.sh >> /var/log/cron_rotate.log 2>&1"' >> /etc/cron.d/cronjob \
@@ -58,4 +57,4 @@ RUN touch /var/log/cron.log \
 
 
 # Run the command on container startup
-CMD ["cron", "-f"]
+CMD ["/app/scripts/start-cron-and-loop.sh"]

@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  msisdn-processor:
+    build: .
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    working_dir: /app/src
+    command: ["python", "engagedForPast_X_days.py"]

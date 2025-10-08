@@ -8,4 +8,4 @@ services:
     env_file:
       - .env
     working_dir: /app/src
-    command: ["python", "engagedForPast_X_days.py"]
+    command: ["python", "non_subscribers.py"]

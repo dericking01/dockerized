@@ -15,7 +15,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # --- File paths ---
 input_file = "/app/files/input/AFYACALL-JULY-BASE-clean.csv"
-output_file = "/app/files/output/non_docSUB_subscribers.csv"
+output_file = "/app/files/output/08_OCT_non_DOCSUB_subscribers.csv"
 
 # --- Connect to Postgres ---
 conn = psycopg2.connect(

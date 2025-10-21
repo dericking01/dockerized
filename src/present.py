@@ -4,9 +4,9 @@ import os
 # but absent in the second input CSV file, and writes them to an output CSV file.
 
 # Input and output file paths
-input_file1 = "/app/files/output/03_OCT_non_IVR_subscribers.csv"
-input_file2 = "/app/files/output/matched_msisdns.csv"
-output_file = "/app/files/output/non_matching_msisdns.csv"
+input_file1 = "/app/files/output/10_OCT_2Bnon_IVR_subscribers.csv"
+input_file2 = "/app/files/output/matched_msisdns_latest.csv"
+output_file = "/app/files/output/non_matching_msisdns_10_OCT_IVR.csv"
 
 # Read MSISDNs from both CSVs
 df1 = pd.read_csv(input_file1)

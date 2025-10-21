@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   msisdn-processor:
     build: .
@@ -8,4 +6,4 @@ services:
     env_file:
       - .env
     working_dir: /app/src
-    command: ["python", "non_subscribers.py"]
+    command: ["python", "are_subscribers.py"]

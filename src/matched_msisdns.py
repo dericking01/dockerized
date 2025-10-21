@@ -5,9 +5,9 @@ import os
 # and writes them to an output CSV file.
 
 # Input and output file paths
-input_file1 = "/app/files/output/01_OCT_non_SMS_subscribers.csv"
-input_file2 = "/app/files/output/02_OCT_non_DOCSUB_subscribers.csv"
-output_file = "/app/files/output/matched_msisdns.csv"
+input_file1 = "/app/files/output/08_OCT_non_DOCSUB_subscribers.csv"
+input_file2 = "/app/files/output/09_OCT_non_CHATBOT_subscribers.csv"
+output_file = "/app/files/output/matched_msisdns_latest.csv"
 
 # Read MSISDNs from both CSVs
 df1 = pd.read_csv(input_file1)

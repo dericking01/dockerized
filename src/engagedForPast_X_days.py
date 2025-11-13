@@ -21,7 +21,7 @@ conn = psycopg2.connect(
     password=DB_PASSWORD
 )
 cur = conn.cursor()
-
+# This script identifies customers and their latest products engaged in the last 90 days.
 # Query: get latest product per msisdn in last 90 days including latest payment date
 query = """
 WITH latest_payments AS (

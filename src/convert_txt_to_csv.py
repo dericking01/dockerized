@@ -6,8 +6,8 @@ import csv
 csv.field_size_limit(10**9)  # 1 billion chars per field
 
 # === CONFIG ===
-input_file = "/app/files/input/afya_base_analysis.txt"
-output_file = "/app/files/output/afya_base_analysis.csv"
+input_file = "/app/files/input/october_base.txt"
+output_file = "/app/files/output/october_base.csv"
 bad_rows_log = "/app/files/output/bad_rows.log"
 delimiter = "\t"
 

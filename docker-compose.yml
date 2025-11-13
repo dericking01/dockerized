@@ -6,4 +6,4 @@ services:
     env_file:
       - .env
     working_dir: /app/src
-    command: ["python", "are_subscribers.py"]
+    command: ["python", "planX_inactive.py"]

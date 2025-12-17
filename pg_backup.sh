@@ -27,6 +27,10 @@ REMOTE_DIR="/var/LocalBackups"
 LOG_FILE="/var/log/pg_backup.log"
 RETENTION_DAYS=3
 SSH_KEY="~postgres/.ssh/id_ed25519"
+GPG_RECIPIENT="dericking01@gmail.com"
+ENCRYPTED_BACKUP_FILE="${BACKUP_FILE}.gpg"
+ENCRYPTED_BACKUP_PATH="${BACKUP_DIR}/${ENCRYPTED_BACKUP_FILE}"
+
 
 # Ensure running as postgres user
 if [ "$(id -un)" != "postgres" ]; then
@@ -54,28 +58,43 @@ fi
 
 log "Starting backup of ${DB_NAME}"
 
+# Encrypted database Backup begins
+log "Checking GPG public key availability for ${GPG_RECIPIENT}..."
+
+if ! gpg --list-keys "${GPG_RECIPIENT}" >/dev/null 2>&1; then
+    log "ERROR: GPG public key for ${GPG_RECIPIENT} not found in postgres keyring"
+    log "HINT: Run -> sudo -u postgres gpg --import pg_backup_public.key"
+    exit 1
+fi
+
+log "GPG public key found"
+
 # Database Backup
-log "Creating database dump..."
-if ! pg_dump "${DB_NAME}" | gzip > "${BACKUP_PATH}"; then
-    log "ERROR: Failed to create database dump"
+log "Creating Encrypted backup at ${ENCRYPTED_BACKUP_PATH}..."
+if ! pg_dump "${DB_NAME}" | gzip | \
+    gpg --encrypt --recipient "${GPG_RECIPIENT}" > "${ENCRYPTED_BACKUP_PATH}"; then
+    log "ERROR: Failed to create encrypted backup"
     exit 1
 fi
 
 # Verify backup was created
-if [ ! -f "${BACKUP_PATH}" ]; then
-    log "ERROR: Backup file not created at ${BACKUP_PATH}"
+if [ ! -f "${ENCRYPTED_BACKUP_PATH}" ]; then
+    log "ERROR: Backup file not created at ${ENCRYPTED_BACKUP_PATH}"
     exit 1
 fi
 
-BACKUP_SIZE=$(du -h "${BACKUP_PATH}" | cut -f1)
-log "Successfully created backup (${BACKUP_SIZE}): ${BACKUP_PATH}"
+BACKUP_SIZE=$(du -h "${ENCRYPTED_BACKUP_PATH}" | cut -f1)
+log "Successfully created Encrypted backup (${BACKUP_SIZE}): ${ENCRYPTED_BACKUP_PATH}"
+
+# remove unencrypted backup
+rm -f "${BACKUP_PATH}"
 
 # Remote Transfer
-log "Transferring backup to ${REMOTE_HOST}..."
+log "Transferring Encrypted backup to ${REMOTE_HOST}..."
 if ! scp -o StrictHostKeyChecking=no -i "${SSH_KEY}" \
-    "${BACKUP_PATH}" \
+    "${ENCRYPTED_BACKUP_PATH}" \
     "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/"; then
-    log "ERROR: Failed to transfer backup to ${REMOTE_HOST}"
+    log "ERROR: Failed to transfer Encrypted backup to ${REMOTE_HOST}"
     exit 1
 fi
 
@@ -83,12 +102,13 @@ log "Backup successfully transferred to ${REMOTE_HOST}"
 
 # Local Cleanup
 log "Cleaning up old backups (keeping ${RETENTION_DAYS} days)..."
-find "${BACKUP_DIR}" -name "${DB_NAME}_*.sql.gz" -mtime +${RETENTION_DAYS} -delete
+find "${BACKUP_DIR}" -name "${DB_NAME}_*.sql.gz.gpg" -mtime +${RETENTION_DAYS} -delete
+
 
 # Remote Cleanup
 if ! ssh -o StrictHostKeyChecking=no -i "${SSH_KEY}" \
     "${REMOTE_USER}@${REMOTE_HOST}" \
-    "find ${REMOTE_DIR} -name '${DB_NAME}_*.sql.gz' -mtime +${RETENTION_DAYS} -delete"; then
+    "find ${REMOTE_DIR} -name '${DB_NAME}_*.sql.gz.gpg' -mtime +${RETENTION_DAYS} -delete"; then
     log "WARNING: Failed to clean up old backups on ${REMOTE_HOST}"
 fi
 

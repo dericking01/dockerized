@@ -71,15 +71,29 @@ log "GPG public key found"
 
 # Database Backup
 log "Creating Encrypted backup at ${ENCRYPTED_BACKUP_PATH}..."
-if ! pg_dump "${DB_NAME}" | gzip | \
-    gpg --encrypt --recipient "${GPG_RECIPIENT}" > "${ENCRYPTED_BACKUP_PATH}"; then
-    log "ERROR: Failed to create encrypted backup"
+
+set +o errexit
+
+pg_dump "${DB_NAME}" | gzip | \
+gpg --batch --yes \
+    --trust-model always \
+    --encrypt \
+    --recipient "${GPG_RECIPIENT}" \
+    --output "${ENCRYPTED_BACKUP_PATH}"
+
+GPG_EXIT_CODE=$?
+set -o errexit
+
+if [ ${GPG_EXIT_CODE} -ne 0 ]; then
+    log "ERROR: GPG encryption failed (exit code=${GPG_EXIT_CODE})"
+    log "HINT: Check trust, permissions, or gpg stderr"
+    rm -f "${ENCRYPTED_BACKUP_PATH}"
     exit 1
 fi
 
-# Verify backup was created
-if [ ! -f "${ENCRYPTED_BACKUP_PATH}" ]; then
-    log "ERROR: Backup file not created at ${ENCRYPTED_BACKUP_PATH}"
+# Verify encrypted backup is not empty
+if [ ! -s "${ENCRYPTED_BACKUP_PATH}" ]; then
+    log "ERROR: Encrypted backup file is empty or missing at ${ENCRYPTED_BACKUP_PATH}"
     exit 1
 fi
 

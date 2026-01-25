@@ -1,4 +1,5 @@
 <?php
+
 date_default_timezone_set('Africa/Dar_es_Salaam');
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -15,26 +16,20 @@ if (file_exists($dotenvPath)) {
     }
 }
 
-/**
- * DB credentials
- */
+/** DB credentials */
 $host = $_ENV['PROD_DB_HOST'] ?? '192.168.1.11';
 $db   = $_ENV['PROD_DB_NAME'] ?? 'afyacall';
 $user = $_ENV['PROD_DB_USERNAME'] ?? 'derrick';
 $pass = $_ENV['PROD_DB_PASSWORD'] ?? '';
 
-/**
- * Logging
- */
+/** Logging */
 $logFile = __DIR__ . '/logs/revenue_sms.log';
 function log_msg($msg) {
     global $logFile;
     file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] $msg\n", FILE_APPEND);
 }
 
-/**
- * DB Connection
- */
+/** DB Connection */
 try {
     $pdo = new PDO(
         "pgsql:host=$host;dbname=$db",
@@ -49,38 +44,66 @@ try {
 }
 
 /**
- * Get today's revenue (midnight → now)
+ * Product mapping
+ */
+$products = [
+    '921465_P01' => 'IVR',
+    '921465_P02' => 'SMS',
+    '921465_P03' => 'DOC SUB',
+    '921465_P04' => '1K BUNDLE',
+    '921465_P05' => '2K BUNDLE',
+    '921465_P06' => '3K BUNDLE',
+];
+
+/**
+ * Revenue SQL (breakdown)
  */
 $sql = "
-    SELECT COALESCE(SUM(amount), 0) AS total_revenue
+    SELECT payable_id, COALESCE(SUM(amount),0) AS revenue
     FROM billing.icg_payments
     WHERE status = 'SUCCESS'
       AND created_at >= CURRENT_DATE
       AND created_at < CURRENT_DATE + INTERVAL '1 day'
+    GROUP BY payable_id
 ";
 
 $stmt = $pdo->query($sql);
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$totalRevenue = (float)$row['total_revenue'];
-$formattedRevenue = number_format($totalRevenue, 0, '.', ',');
+$breakdown = [];
+$total = 0;
 
-/**
- * Recipients
- */
+foreach ($rows as $r) {
+    $pid = $r['payable_id'];
+    $amount = (float)$r['revenue'];
+    $label = $products[$pid] ?? $pid;
+
+    $breakdown[$label] = ($breakdown[$label] ?? 0) + $amount;
+    $total += $amount;
+}
+
+/** format whole numbers */
+function tsh($n) {
+    return '' . number_format(round($n), 0, '.', ',');
+}
+
+/** Recipients */
 $recipients = [
     '255743956595' => 'Mr. Derrick',
-    '255746088031' => 'Mr. Wingslaus',
-    '255756532635' => 'Mr. Siwangu',
-    '255757064197' => 'Ms. Nancy',
+    // '255746088031' => 'Mr. Wingslaus',
+    // '255756532635' => 'Mr. Siwangu',
+    // '255757064197' => 'Ms. Nancy',
 ];
 
-/**
- * Send SMS
- */
+/** Send SMS */
 foreach ($recipients as $msisdn => $name) {
 
-    $message = "Hi, $name, Today's Current Revenue is: $formattedRevenue";
+    $sms = tsh($breakdown['SMS'] ?? 0);
+    $ivr = tsh($breakdown['IVR'] ?? 0);
+    $doc = tsh($breakdown['DOC SUB'] ?? 0);
+    $totalFmt = tsh($total);
+
+    $message = "Hi, $name, Today's Current Revenue: SMS: $sms, IVR: $ivr, DocSub: $doc,TOTAL => Tsh $totalFmt";
 
     $url = "http://192.168.1.10:6017/cgi-bin/sendsms?" . http_build_query([
         'username' => 'afya',
@@ -109,4 +132,4 @@ foreach ($recipients as $msisdn => $name) {
     }
 }
 
-log_msg("Hourly revenue SMS completed");
+log_msg("Hourly revenue breakdown SMS completed");

@@ -11,3 +11,5 @@ services:
     tty: true
     environment:
       - TZ=Africa/Dar_es_Salaam
+    # working_dir: /usr/src/app/scripts/
+    # command: ["php", "extract_msisdns.php"]

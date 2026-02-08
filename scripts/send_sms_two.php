@@ -2,15 +2,16 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/953K_Dar_CoastBase_Jan2026_08_FEB_2026.csv';
-$message = "Afya yako ni siri kubwa! Uliza swali lolote sasa na pata jibu la haraka. Usinyamaze ukiwa na wasi wasi. Jibu 3 kuchati na mm";
+$csvFile = '/home/derrick/files/afya_base_analysis.csv';
+$message_o35 = "Je, UNASUMBULIWA na Maumivu ya Mgongo, Miguu au Misuli? Usiteseke! Jibu 3, kwa ushauri na tiba Zaidi.";
+$message_u35 = "MAUMIVU ya Miguu/Mgongo? Usiyapuuze! Fahamu Hisia za Misuli na Viungo. Jibu 1 upate ushauri au tiba sasa.";
 $smsboxPorts = [6016, 6017, 6018];
-$concurrency = 11; // parallel requests per batch TPS 160
+$concurrency = 11; // parallel requests per batch (TPS ~160)
 $chunkSize = 5000;
 $maxRetries = 3;
 date_default_timezone_set('Africa/Dar_es_Salaam');
 
-// STARTUP 
+// STARTUP
 $startTime = microtime(true);
 $startDate = date("Y-m-d H:i:s");
 
@@ -27,13 +28,17 @@ if (!$handle) {
 
 $headers = fgetcsv($handle);
 $msisdnIndex = array_search('MSISDN', $headers);
+$ageIndex    = array_search('AGE', $headers);
+
 if ($msisdnIndex === false) {
     echo "❌ 'MSISDN' column not found.\n";
     fclose($handle);
     exit(1);
 }
+if ($ageIndex === false) {
+    echo "⚠️ 'AGE' column not found — treating all as under 35.\n";
+}
 
-// COUNTERS
 $totalSent = 0;
 $totalFailed = 0;
 $chunk = [];
@@ -46,19 +51,24 @@ while (($row = fgetcsv($handle)) !== false) {
         continue;
     }
 
-    $chunk[] = $msisdn;
+    $ageRaw = $row[$ageIndex] ?? null;
+    $age = is_numeric($ageRaw) ? (int)$ageRaw : null;
+
+    $message = ($age !== null && $age >= 35) ? $message_o35 : $message_u35;
+
+    $chunk[] = ['msisdn' => $msisdn, 'message' => $message];
 
     if (count($chunk) >= $chunkSize) {
-        echo "🚀 Processing chunk " . (++$chunkIndex) . " of " . count($chunk) . " numbers...\n";
-        processChunk($chunk, $smsboxPorts, $message, $concurrency, $totalSent, $totalFailed);
+        echo "🚀 Processing chunk " . (++$chunkIndex) . " (" . count($chunk) . " numbers)...\n";
+        processChunk($chunk, $smsboxPorts, $concurrency, $totalSent, $totalFailed);
         $chunk = [];
     }
 }
 
 // Final leftover chunk
 if (!empty($chunk)) {
-    echo "🚀 Processing final chunk " . (++$chunkIndex) . " of " . count($chunk) . " numbers...\n";
-    processChunk($chunk, $smsboxPorts, $message, $concurrency, $totalSent, $totalFailed);
+    echo "🚀 Processing final chunk " . (++$chunkIndex) . " (" . count($chunk) . " numbers)...\n";
+    processChunk($chunk, $smsboxPorts, $concurrency, $totalSent, $totalFailed);
 }
 
 fclose($handle);
@@ -74,35 +84,36 @@ echo "❌ Total Failed: {$totalFailed}\n";
 echo "⏱️ Started at: {$startDate}\n";
 echo "✅ Ended at:   " . date("Y-m-d H:i:s") . "\n";
 echo "🕓 Duration:   {$duration}s ({$formatted})\n";
-echo "📊 Sent at rate: " . round($totalSent / $duration, 2) . " messages/sec\n";
+echo "📊 Sent rate:  " . round($totalSent / max($duration, 1), 2) . " msg/sec\n";
+
 
 // FUNCTION: Send SMS chunk using curl_multi
-function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent, &$totalFailed)
+function processChunk($chunk, $smsboxPorts, $concurrency, &$totalSent, &$totalFailed)
 {
     $portCount = count($smsboxPorts);
 
     for ($i = 0; $i < count($chunk); $i += $concurrency) {
         $multiHandle = curl_multi_init();
         $curlHandles = [];
-
         $batch = array_slice($chunk, $i, $concurrency);
 
-        foreach ($batch as $key => $msisdn) {
+        foreach ($batch as $key => $data) {
+            $msisdn = $data['msisdn'];
+            $message = $data['message'];
             $port = $smsboxPorts[($i + $key) % $portCount];
 
             $url = "http://192.168.1.10:{$port}/cgi-bin/sendsms?" . http_build_query([
-                'username'  => 'afya',
-                'password'  => 'Afya4017',
-                'from'      => '15723',
-                'to'        => $msisdn,
-                'text'      => $message,
-                'dlr-mask'  => 31,
+                'username' => 'afya',
+                'password' => 'Afya4017',
+                'from'     => '15723',
+                'to'       => $msisdn,
+                'text'     => $message,
+                'dlr-mask' => 31,
             ]);
 
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-
             $curlHandles[$msisdn] = $ch;
             curl_multi_add_handle($multiHandle, $ch);
         }
@@ -128,7 +139,7 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
         }
 
         curl_multi_close($multiHandle);
-        // Optional throttle
-        // usleep(100000); // 0.1 second
+        // Optional throttle per batch
+        // usleep(100000); // 0.1s pause
     }
 }

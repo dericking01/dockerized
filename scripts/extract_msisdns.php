@@ -1,11 +1,11 @@
 #!/usr/bin/php
 <?php
 
-$inputFile = '/home/derrick/files/output_1_to_last.csv';
-$outputFile = '/home/derrick/files/output_POINT58_to_last.csv';
+$inputFile = '/home/derrick/files/Dar_CoastBase_Jan2026_CLEAN.csv';
+$outputFile = '/home/derrick/files/953K_Dar_CoastBase_Jan2026_08_FEB_2026.csv';
 
-$start = 1580001; // Starting from this line
-$limit = 15800011; // Limit to this many lines
+$start = 3600000; // Starting from this line
+$limit = 4200000; // Limit to this many lines
 $currentLine = 0;
 $written = 0;
 

@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/953K_Dar_CoastBase_Jan2026_08_FEB_2026.csv';
-$message = "Afya yako ni siri kubwa! Uliza swali lolote sasa na pata jibu la haraka. Usinyamaze ukiwa na wasi wasi. Jibu 3 kuchati na mm";
+$csvFile = '/home/derrick/files/1.5M_NorthBaseJan2026_13_FEB_2026.csv';
+$message = "Afya haina subira! Jiunge sasa upate dakika 5 za kuongea na daktari kila siku, pamoja na ushauri wa afya moja kwa moja. Fursa yako ipo hapa. Jibu 1 kujiunga.";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;

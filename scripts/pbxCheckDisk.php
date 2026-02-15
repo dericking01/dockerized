@@ -25,17 +25,14 @@ $toEmails = [
     'derrick@afyacall.co.tz',
     'svmgata@afyacall.co.tz',
     'salhat.masunga@afyacall.co.tz',
-    'm.macha@afyacall.co.tz',
-    'kshalom@afyacall.co.tz',
-    'annette@afyacall.co.tz',
     'fmodamba@afyacall.co.tz',
     'smwamba@afyacall.co.tz',
-    'julius.john@afyacall.co.tz',
-    'johnhaule@gmail.com',
     'wvmgata@afyacall.co.tz',
     'modamba@gmail.com',
     'valencemuganda@gmail.com',
     'njunwawamavoko@gmail.com',
+    'ivan.kakorozya@afyacall.co.tz',
+    'bennet.kakorozya@afyacall.co.tz',
 ];
 
 $fromEmail = 'alerts@afyacall.co.tz';

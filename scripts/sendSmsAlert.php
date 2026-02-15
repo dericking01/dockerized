@@ -8,7 +8,7 @@ function sendSmsAlert($currentCount, $isRecovery = false)
         '255754710722',
         '255746088031',
         '255746805383',
-        '255743570368',
+        // '255743570368',
     ];
 
     // Build message

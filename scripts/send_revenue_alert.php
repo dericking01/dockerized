@@ -84,26 +84,33 @@ foreach ($rows as $r) {
 
 /** format whole numbers */
 function tsh($n) {
-    return '' . number_format(round($n), 0, '.', ',');
+    return 'TSh' . number_format(round($n), 0, '.', ',');
 }
 
 /** Recipients */
 $recipients = [
     '255743956595' => 'Mr. Derrick',
-    // '255746088031' => 'Mr. Wingslaus',
-    // '255756532635' => 'Mr. Siwangu',
-    // '255757064197' => 'Ms. Nancy',
+    '255746088031' => 'Mr. Wingslaus',
+    '255756532635' => 'Mr. Siwangu',
+    '255757064197' => 'Ms. Nancy',
 ];
 
 /** Send SMS */
 foreach ($recipients as $msisdn => $name) {
 
-    $sms = tsh($breakdown['SMS'] ?? 0);
-    $ivr = tsh($breakdown['IVR'] ?? 0);
-    $doc = tsh($breakdown['DOC SUB'] ?? 0);
+    $parts = [];
+
+    foreach ($breakdown as $label => $amount) {
+        if ($amount > 0) {
+            $parts[] = "$label: " . tsh($amount);
+        }
+    }
+
     $totalFmt = tsh($total);
 
-    $message = "Hi, $name, Today's Current Revenue: SMS: $sms, IVR: $ivr, DocSub: $doc,TOTAL => Tsh $totalFmt";
+    $breakdownText = implode(' ', $parts);
+
+    $message = "Hi, $name, Today's Current Revenue: $breakdownText TOTAL => $totalFmt";
 
     $url = "http://192.168.1.10:6017/cgi-bin/sendsms?" . http_build_query([
         'username' => 'afya',

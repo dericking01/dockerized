@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/500k_NorthBaseJan2026_IVR_11_MARCH_2026.csv';
-$message = "Je, unatokwa damu puani mara kwa mara au moyo kupiga haraka bila sababu? Huenda ni dalili za shinikizo la damu. Sikiliza ushauri wa daktari. Jibu 2 kujiunga";
+$csvFile = '/home/derrick/files/500k_NorthBaseJan2026_11_MARCH_2026.csv';
+$message = "Je, unatokwa damu puani mara kwa mara, moyo wako hupiga haraka au kwa nguvu bila sababu? Hizi ni ishara za shinikizo la damu. Jibu 1 kuongea na daktari";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;

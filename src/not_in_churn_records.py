@@ -13,8 +13,8 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/output/subscribers_not_on_921465_P02.csv"
-output_file = "/app/files/output/subscribers_not_on_921465_P02_NOT_IN_CUSTOMERS.csv"
+input_file = "/app/files/input/DAILY_CHURNED_MSISDN_2026_02_09_05_19_27.csv"
+output_file = "/app/files/output/AFYACALL-JULY-BASE-clean_NOT_IN_CUSTOMERS.csv"
 
 # Read MSISDNs from CSV
 df_input = pd.read_csv(input_file)
@@ -31,8 +31,14 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 # Query all customer MSISDNs
-query = "SELECT DISTINCT customer_msisdn FROM subscription.subscribers WHERE plan_code='921465_P02';"
-cur.execute(query)
+query = """
+SELECT DISTINCT customer_msisdn
+FROM subscription.churn_logs
+WHERE status = %s
+  AND created_at BETWEEN %s AND %s;
+"""
+cur.execute(query, ('SUCCESS', '2026-02-01', '2026-02-10'))
+
 db_msisdns = set(str(row[0]).strip() for row in cur.fetchall())
 
 cur.close()
@@ -45,5 +51,5 @@ non_existing_msisdns = input_msisdns.difference(db_msisdns)
 df_output = pd.DataFrame({"MSISDN": list(non_existing_msisdns)})
 df_output.to_csv(output_file, index=False)
 
-print(f"✅ Done! Found {len(non_existing_msisdns)} MSISDNs NOT in customer.customers.")
+print(f"✅ Done! Found {len(non_existing_msisdns)} MSISDNs NOT in subscription.churn_logs")
 print(f"Output saved to {output_file}")

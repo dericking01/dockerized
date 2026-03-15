@@ -6,4 +6,4 @@ services:
     env_file:
       - .env
     working_dir: /app/src
-    command: ["python", "smart_bango.py"]
+    command: ["python", "extractCustomerBase.py"]

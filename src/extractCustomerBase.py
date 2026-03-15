@@ -10,7 +10,7 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Output file path
-output_file = "/app/files/output/customers_base.csv"
+output_file = "/app/files/output/subscribers_not_on_921465_P02.csv"
 
 # Connect to Postgres
 conn = psycopg2.connect(
@@ -24,9 +24,9 @@ cur = conn.cursor()
 
 # Query database
 query = """
-    SELECT DISTINCT msisdn
-    FROM customer.customers
-    WHERE msisdn LIKE '255%'
+    SELECT DISTINCT customer_msisdn
+    FROM subscription.subscribers
+    WHERE plan_code != '921465_P02'
 """
 cur.execute(query)
 db_msisdns = [str(row[0]).strip() for row in cur.fetchall()]

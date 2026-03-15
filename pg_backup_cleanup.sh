@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # PostgreSQL Backup Cleanup Script
-# Removes backup files older than 1 month
+# Removes backup files older than 7 days on host and logs the cleanup process
+# Usage: sudo -u postgres /usr/local/bin/pg_backup_cleanup.sh
 
 # Configuration
 BACKUP_DIR="/var/local_backups"
-RETENTION_DAYS=31  # 1 month = ~31 days
+RETENTION_DAYS=7  # 7 days
 LOG_FILE="/var/log/pg_backup_cleanup.log"
 
 # Ensure running as postgres user
@@ -29,7 +30,7 @@ fi
 log "Starting cleanup of backup files older than ${RETENTION_DAYS} days in ${BACKUP_DIR}"
 
 # Find and delete old backups
-find "${BACKUP_DIR}" -name "drraha_*.sql.gz" -mtime +${RETENTION_DAYS} -exec rm -v {} \; >> "${LOG_FILE}" 2>&1
+find "${BACKUP_DIR}" -name "afyacall_*.sql.gz.gpg" -mtime +${RETENTION_DAYS} -exec rm -v {} \; >> "${LOG_FILE}" 2>&1
 
 log "Cleanup completed successfully"
 exit 0

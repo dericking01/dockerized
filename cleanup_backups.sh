@@ -1,10 +1,10 @@
 #!/bin/bash
 # cleanup_backups.sh
-# Permanently delete backups older than 2 days in /var/LocalBackups
+# Permanently delete backups older than 4 days in /data/var/LocalBackups
 # Ensures at least 2 most recent backups are always kept.
 
-BACKUP_DIR="/var/LocalBackups"
-DAYS_TO_KEEP=1
+BACKUP_DIR="/data/var/LocalBackups"
+DAYS_TO_KEEP=4
 LOGFILE="/var/log/cleanup_backups.log"
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting cleanup..." >> "$LOGFILE"

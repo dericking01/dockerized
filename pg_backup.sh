@@ -2,13 +2,13 @@
 
 # PostgreSQL Backup Script
 # Version: 1.2
-# Description: Creates compressed backups of PostgreSQL database and transfers to remote server
+# Description: Creates compressed Encrypted backups of PostgreSQL database and transfers to remote server
 # Usage: sudo -u postgres /usr/local/bin/pg_backup.sh
 
 # Environment Configuration
 export PGPASSFILE=~postgres/.pgpass
 export PGUSER=postgres
-export PGDATABASE=drraha
+export PGDATABASE=afyacall
 
 # Set strict error checking
 set -o errexit
@@ -17,15 +17,15 @@ set -o pipefail
 
 # Configuration Variables
 BACKUP_DIR="/var/local_backups"
-DB_NAME="drraha"
+DB_NAME="afyacall"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FILE="${DB_NAME}_${TIMESTAMP}.sql.gz"
 BACKUP_PATH="${BACKUP_DIR}/${BACKUP_FILE}"
 REMOTE_USER="derrick"
 REMOTE_HOST="192.168.1.10"
-REMOTE_DIR="/var/LocalBackups"
+REMOTE_DIR="/data/var/LocalBackups"
 LOG_FILE="/var/log/pg_backup.log"
-RETENTION_DAYS=3
+# RETENTION_DAYS=5  # Local/remote retention (if needed)
 SSH_KEY="~postgres/.ssh/id_ed25519"
 GPG_RECIPIENT="dericking01@gmail.com"
 ENCRYPTED_BACKUP_FILE="${BACKUP_FILE}.gpg"
@@ -115,16 +115,16 @@ fi
 log "Backup successfully transferred to ${REMOTE_HOST}"
 
 # Local Cleanup
-log "Cleaning up old backups (keeping ${RETENTION_DAYS} days)..."
-find "${BACKUP_DIR}" -name "${DB_NAME}_*.sql.gz.gpg" -mtime +${RETENTION_DAYS} -delete
+# log "Cleaning up old backups (keeping ${RETENTION_DAYS} days)..."
+# find "${BACKUP_DIR}" -name "${DB_NAME}_*.sql.gz.gpg" -mtime +${RETENTION_DAYS} -delete
 
 
 # Remote Cleanup
-if ! ssh -o StrictHostKeyChecking=no -i "${SSH_KEY}" \
-    "${REMOTE_USER}@${REMOTE_HOST}" \
-    "find ${REMOTE_DIR} -name '${DB_NAME}_*.sql.gz.gpg' -mtime +${RETENTION_DAYS} -delete"; then
-    log "WARNING: Failed to clean up old backups on ${REMOTE_HOST}"
-fi
+# if ! ssh -o StrictHostKeyChecking=no -i "${SSH_KEY}" \
+#     "${REMOTE_USER}@${REMOTE_HOST}" \
+#     "find ${REMOTE_DIR} -name '${DB_NAME}_*.sql.gz.gpg' -mtime +${RETENTION_DAYS} -delete"; then
+#     log "WARNING: Failed to clean up old backups on ${REMOTE_HOST}"
+# fi
 
-log "Backup and cleanup completed successfully"
+# log "Backup completed successfully"
 exit 0

@@ -79,7 +79,7 @@ gpg --batch --yes \
     --trust-model always \
     --encrypt \
     --recipient "${GPG_RECIPIENT}" \
-    --output "${ENCRYPTED_BACKUP_PATH}"
+    --output "${ENCRYPTED_BACKUP_PATH}" 2>> "${LOG_FILE}"
 
 GPG_EXIT_CODE=$?
 set -o errexit

@@ -1,5 +1,5 @@
 <?php
-function sendSmsAlert($currentCount, $isRecovery = false)
+function sendSmsAlert($currentCount, $isRecovery = false, $doctorNames = [])
 {
     $recipients = [
         '255743956595',
@@ -15,7 +15,9 @@ function sendSmsAlert($currentCount, $isRecovery = false)
     if ($isRecovery) {
         $message = "RECOVERY: $currentCount doctors online now. All OK.";
     } else {
-        $message = "ALERT: Only $currentCount doctor(s) are online. Check system.";
+        $firstNames = array_map(fn($name) => explode(' ', $name)[0], $doctorNames);
+        $doctorList = !empty($firstNames) ? ' (' . implode(', ', $firstNames) . ')' : '';
+        $message = "ALERT: Only $currentCount doctor(s) are online$doctorList. Check system.";
     }
 
     echo "📨 SMS Message: \"$message\"\n";

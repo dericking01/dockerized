@@ -1,6 +1,12 @@
 <?php
 function sendSmsAlert($currentCount, $isRecovery = false, $doctorNames = [])
 {
+    //Log doctor names for debugging
+    if (!$isRecovery) {
+        echo "📋 Doctors currently online: " . implode(', ', $doctorNames) .
+            "\n";
+    }
+
     $recipients = [
         '255743956595',
         '255756532635',

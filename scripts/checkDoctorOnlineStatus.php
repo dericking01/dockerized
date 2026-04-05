@@ -81,6 +81,13 @@ try {
     if ($currentCount <= 3) {
         $subject = '🚨 Doctor Status Alert';
 
+        // Get list of current online doctors
+        $onlineDoctors = [];
+        $doctorQuery = $pdo->query("SELECT name FROM users WHERE status = 0 ORDER BY name ASC LIMIT 50");
+        while ($user = $doctorQuery->fetch(PDO::FETCH_ASSOC)) {
+            $onlineDoctors[] = $user['name'];
+        }
+
         if ($currentCount == 0) {
             $body .= "<p style='font-size: 18px; color: #c0392b;'><strong>❌ No doctor</strong> is currently online.</p>";
         } elseif ($currentCount == 1) {
@@ -105,7 +112,7 @@ try {
         $mail->Subject = $subject;
         $mail->Body = $body;
         $mail->send();
-        sendSmsAlert($currentCount, false);
+        sendSmsAlert($currentCount, false, $onlineDoctors);
 
         echo "🚨 Critical alert sent for $currentCount doctor(s) online.\n";
     }

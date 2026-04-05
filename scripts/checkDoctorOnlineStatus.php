@@ -56,14 +56,14 @@ try {
     // Recipients
     $recipients = [
         'derrick@afyacall.co.tz',
-        'svmgata@afyacall.co.tz',
+        // 'svmgata@afyacall.co.tz',
         'salhat.masunga@afyacall.co.tz',
-        'fmodamba@afyacall.co.tz',
-        'smwamba@afyacall.co.tz',
+        // 'fmodamba@afyacall.co.tz',
+        // 'smwamba@afyacall.co.tz',
         'ivan.kakorozya@afyacall.co.tz',
         'bennet.kakorozya@afyacall.co.tz',
         'wvmgata@afyacall.co.tz',
-        'modamba@gmail.com',
+        // 'modamba@gmail.com',
     ];
 
     foreach ($recipients as $email) {

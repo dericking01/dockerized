@@ -45,7 +45,7 @@ $todayEnd   = date('Y-m-d 23:59:59');
 // Query counts
 $sql = "
     SELECT status, COUNT(*) AS status_count
-    FROM billing.payments
+    FROM billing.icg_payments
     WHERE created_at BETWEEN :start AND :end
     GROUP BY status
 ";
@@ -92,13 +92,13 @@ log_msg("Prepared SMS message: $message");
 // Recipient list
 $recipients = [
     '255743956595',
-    '255754710722',
-    '255746088031',
-    '255756532635',
-    '255743570368',
-    '255765975152',
-    '255753932250',
-    '255757064197'
+    // '255754710722',
+    // '255746088031',
+    // '255756532635',
+    // '255743570368',
+    // '255765975152',
+    // '255753932250',
+    // '255757064197'
 ];
 
 

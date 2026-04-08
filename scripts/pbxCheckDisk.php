@@ -14,10 +14,47 @@ $cronLogFile  = '/var/log/cron_disk_pbx.log';
 
 file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] PBX Script started\n", FILE_APPEND);
 
+function loadEnvFile($path)
+{
+    if (!file_exists($path)) {
+        return [];
+    }
+
+    $values = [];
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || strpos($line, '#') === 0) {
+            continue;
+        }
+
+        [$key, $value] = array_pad(explode('=', $line, 2), 2, '');
+        $key = trim($key);
+        $value = trim($value);
+
+        if ($key === '') {
+            continue;
+        }
+
+        $firstChar = substr($value, 0, 1);
+        $lastChar = substr($value, -1);
+        if (($firstChar === '"' && $lastChar === '"') || ($firstChar === "'" && $lastChar === "'")) {
+            $value = substr($value, 1, -1);
+        }
+
+        $values[$key] = $value;
+    }
+
+    return $values;
+}
+
+$envPath = __DIR__ . '/../.env';
+$env = loadEnvFile($envPath);
 // === Configuration ===
-$pbxHost      = "192.168.1.49";
-$pbxUser      = "root";
-$pbxPass      = "1nv3nt123";  // Consider using ssh keys instead of storing plaintext password!
+$pbxHost      = $env['PBX_HOST'] ?? null;
+$pbxUser      = $env['PBX_USERNAME'] ?? null;
+$pbxPass      = $env['PBX_PASSWORD'] ?? null;  // Consider using ssh keys instead of storing plaintext password!
 $mountPoint   = "/root";
 $thresholds   = [75, 85, 95, 98];
 

@@ -4,15 +4,15 @@ import csv
 csv.field_size_limit(10**9)
 
 # === CONFIG ===
-input_file = "/app/files/input/NSP_LAKE_FEB2026.txt"
-output_file = "/app/files/output/NSP_LAKE_FEB2026.csv"
-bad_rows_log = "/app/files/output/bad_rows.log"
+input_file = "/app/files/input/03-Base/DND_APRIL.txt"
+output_file = "/app/files/output/03-Base-csv/DND_APRIL.csv"
+bad_rows_log = "/app/files/output/03-Base-csv/bad_rows.log"
 delimiter = ","   # 🔥 FIX HERE
 
 os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
 col_names = [
-    "MPA_MSISDN"
+    "MSISDN"
 ]
 
 print(f"Reading and converting '{input_file}' ...")

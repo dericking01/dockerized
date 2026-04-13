@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Local file to copy
-LOCAL_FILE="/home/derrick/pythonApp/files/output/subscribers_not_on_921465_P02.csv"
+# Local path to copy (file or directory)
+LOCAL_PATH="/home/derrick/pythonApp/files/output/03-Base-clean/"
 
 # Remote server details
 REMOTE_USER="derrick"
@@ -9,8 +9,18 @@ REMOTE_HOST="192.168.1.200"
 REMOTE_PASS=".."  # Replace with actual password
 REMOTE_DIR="/home/derrick/"
 
-echo "Copying '$LOCAL_FILE' to '${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}' ..."
-# Use sshpass + scp to copy the file
-sshpass -p "$REMOTE_PASS" scp "$LOCAL_FILE" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}"
+if [ ! -e "$LOCAL_PATH" ]; then
+	echo "Error: local path '$LOCAL_PATH' does not exist."
+	exit 1
+fi
 
-echo "File copy completed."
+echo "Copying $LOCAL_PATH to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}..."
+
+# Use recursive copy only when the source is a directory
+if [ -d "$LOCAL_PATH" ]; then
+	sshpass -p "$REMOTE_PASS" scp -r "$LOCAL_PATH" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}"
+else
+	sshpass -p "$REMOTE_PASS" scp "$LOCAL_PATH" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}"
+fi
+
+echo "Copy completed."

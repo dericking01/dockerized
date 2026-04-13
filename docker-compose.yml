@@ -2,7 +2,7 @@ services:
   msisdn-processor:
     build: .
     volumes:
-      - .:/app
+      - ./files:/app
     env_file:
       - .env
     working_dir: /app/src

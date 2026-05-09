@@ -5,32 +5,36 @@
 # Usage: sudo -u postgres /usr/local/bin/pg_backup_cleanup.sh
 
 # Configuration
+
 BACKUP_DIR="/var/local_backups"
-RETENTION_DAYS=7  # 7 days
+KEEP=7
 LOG_FILE="/var/log/pg_backup_cleanup.log"
 
-# Ensure running as postgres user
-if [ "$(id -un)" != "postgres" ]; then
-    echo "ERROR: This script must be run as postgres user" >&2
-    exit 1
-fi
-
-# Log function
 log() {
-    echo "$(date "+%Y-%m-%d %H:%M:%S") - $1" >> "${LOG_FILE}"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "${LOG_FILE}"
 }
 
-# Verify directory exists
-if [ ! -d "${BACKUP_DIR}" ]; then
-    log "ERROR: Backup directory ${BACKUP_DIR} does not exist"
+if [ "$(id -un)" != "postgres" ]; then
+    echo "ERROR: Must run as postgres"
     exit 1
 fi
 
-# Start cleanup
-log "Starting cleanup of backup files older than ${RETENTION_DAYS} days in ${BACKUP_DIR}"
+if [ ! -d "${BACKUP_DIR}" ]; then
+    log "ERROR: Backup directory missing"
+    exit 1
+fi
 
-# Find and delete old backups
-find "${BACKUP_DIR}" -name "afyacall_*.sql.gz.gpg" -mtime +${RETENTION_DAYS} -exec rm -v {} \; >> "${LOG_FILE}" 2>&1
+log "Starting backup cleanup"
 
-log "Cleanup completed successfully"
-exit 0
+FILES_TO_DELETE=$(find "${BACKUP_DIR}" -type f -name "afyacall_*.sql.gz.gpg" | sort | head -n -${KEEP})
+
+if [ -z "${FILES_TO_DELETE}" ]; then
+    log "No old backups to delete"
+else
+    echo "${FILES_TO_DELETE}" | while read -r file; do
+        log "Deleting ${file}"
+        rm -f "${file}"
+    done
+fi
+
+log "Cleanup completed"

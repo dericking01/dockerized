@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Local path to copy (file or directory)
-LOCAL_PATH="/home/derrick/pythonApp/files/output/03-Base-clean/"
+LOCAL_PATH="/home/derrick/pythonApp/files/output/03_MAY_LAKE_MERGED_CLEAN.csv"
 
 # Remote server details
 REMOTE_USER="derrick"
 REMOTE_HOST="192.168.1.200"
-REMOTE_PASS=".."  # Replace with actual password
+REMOTE_PASS="Derrick@2023"  # Replace with actual password
 REMOTE_DIR="/home/derrick/"
 
 if [ ! -e "$LOCAL_PATH" ]; then

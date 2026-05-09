@@ -2,8 +2,8 @@ services:
   msisdn-processor:
     build: .
     volumes:
-      - ./files:/app
+      - ./files:/app/files
     env_file:
       - .env
     working_dir: /app/src
-    command: ["python", "filter_dnd_bases.py"]
+    command: ["python", "not_in_base.py"]

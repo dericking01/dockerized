@@ -1,13 +1,13 @@
 import os
 import csv
 import glob
-
+# This script filters out MSISDNs present in DND_APRIL.csv from all other CSV files in the base directory.
 csv.field_size_limit(10**9)
 
 # === CONFIG ===
-base_dir        = "/app/files/output/03-Base-csv"
-output_dir      = "/app/files/output/03-Base-clean"
-dnd_file        = os.path.join(base_dir, "DND_APRIL.csv")
+base_dir        = "/app/files/output/special25"
+output_dir      = "/app/files/output/special25clean"
+dnd_file        = os.path.join(base_dir, "msisdns.csv")
 filter_log      = os.path.join(output_dir, "filter_summary.log")
 
 os.makedirs(output_dir, exist_ok=True)

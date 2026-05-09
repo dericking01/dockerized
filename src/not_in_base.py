@@ -13,8 +13,8 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/output/subscribers_not_on_921465_P02.csv"
-output_file = "/app/files/output/subscribers_not_on_921465_P02_NOT_IN_CUSTOMERS.csv"
+input_file = "/app/files/output/NSP_MARCH_26_LAKE_MERGED_CLEAN.csv"
+output_file = "/app/files/output/03_MAY_LAKE_MERGED_CLEAN.csv"
 
 # Read MSISDNs from CSV
 df_input = pd.read_csv(input_file)
@@ -31,7 +31,7 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 # Query all customer MSISDNs
-query = "SELECT DISTINCT customer_msisdn FROM subscription.subscribers WHERE plan_code='921465_P02';"
+query = "SELECT DISTINCT customer_msisdn FROM subscription.subscribers;"
 cur.execute(query)
 db_msisdns = set(str(row[0]).strip() for row in cur.fetchall())
 

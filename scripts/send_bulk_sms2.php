@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/22_MAR_2026_ivr.csv';
-$message = "Una swali au uhitaji wa msaada wa haraka wa kiafya ila huwezi kufika hospitali sababu ya mvua? Sikiliza sasa ushauri kutoka kwa mtaalamu wa Afyacall, jibu 2";
+$csvFile = '/home/derrick/files/28_APR_IVR_LAKE.csv';
+$message = "EPUKA UTI kwa kunywa maji mengi, usizuie mkojo na zingatia usafi wa sehemu za siri. Ikiwa unahisi una dalili za UTI, sikiliza ushauri wa mtaalamu sasa. Jibu 2";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;

@@ -2,7 +2,7 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/28_APR_SMS_LAKE.csv';
+$csvFile = '/home/derrick/files/26_APR_SMS_LAKE.csv';
 $message = "Jilinde na UTI: kunywa maji mengi, usizuie mkojo na zingatia usafi wa sehemu za siri. Ikiwa unahisi dalili za UTI, chati sasa na mtaalamu kwa ushauri. Jibu 3";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160

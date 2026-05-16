@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/eid_mubaraq2026.csv';
-$message = "Eid Mubarak! Mwenyezi Mungu akujalie Afya njema, furaha na amani tele. Ukiwa na swali lolote la afya, usisite. Piga 0900011111 kuongea na daktari sasa";
+$csvFile = '/home/derrick/files/28_APR_DR_LAKE.csv';
+$message = "Jilinde na UTI: kunywa maji mengi, usizuie mkojo na zingatia usafi wa sehemu za siri. Ikiwa unahisi dalili za UTI, ongea sasa na daktari wa Afyacall 0900011111";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;

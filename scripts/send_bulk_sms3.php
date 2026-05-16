@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/subscribers_not_on_921465_P02.csv';
-$message = "Dalili kama maumivu ya kifua, jasho jingi au kizunguzungu zinaweza kuashiria shambulio la moyo. Kujua jinsi ya kutoa msaada wa awali, jibu 3 uchati na mimi";
+$csvFile = '/home/derrick/files/24_APR_2026_IVR_DAR_CLEAN.csv';
+$message = "EPUKA UTI kwa kunywa maji mengi, usizuie mkojo na zingatia usafi wa sehemu za siri. Ikiwa unahisi una dalili za UTI, sikiliza ushauri wa mtaalamu sasa. Jibu 2";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;

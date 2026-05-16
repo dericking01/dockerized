@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/28_APR_SMS_LAKE.csv';
-$message = "Jilinde na UTI: kunywa maji mengi, usizuie mkojo na zingatia usafi wa sehemu za siri. Ikiwa unahisi dalili za UTI, chati sasa na mtaalamu kwa ushauri. Jibu 3";
+$csvFile = '/home/derrick/files/05_APR_2026_IVR_NSP_south.csv';
+$message = "Pasaka njema! Tunakutakia wewe na familia yako Afya, amani na baraka tele. Una swali la afya? Piga 0900011111 sasa kuongea na daktari";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;
@@ -93,7 +93,7 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
             $url = "http://192.168.1.10:{$port}/cgi-bin/sendsms?" . http_build_query([
                 'username'  => 'afya',
                 'password'  => 'Afya4017',
-                'from'      => '15723',
+                'from'      => 'AFYACALL',
                 'to'        => $msisdn,
                 'text'      => $message,
                 'dlr-mask'  => 31,

@@ -2,8 +2,12 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/28_APR_SMS_LAKE.csv';
-$message = "Jilinde na UTI: kunywa maji mengi, usizuie mkojo na zingatia usafi wa sehemu za siri. Ikiwa unahisi dalili za UTI, chati sasa na mtaalamu kwa ushauri. Jibu 3";
+$csvFiles = [
+    '/home/derrick/files/16_MAY_NORTH_DR.csv',
+    '/home/derrick/files/16_MAY_SOUTH_DR.csv',
+    // '/home/derrick/files/26_APR_IVR_DAR_CLEAN.csv',
+];
+$message = "Maumivu ya kichwa, uchovu au mapigo ya moyo kwenda kasi vinaweza kuwa dalili za presha. Usingoje hali izidi. Piga 0900011111 kuongea na daktari";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;
@@ -14,54 +18,71 @@ date_default_timezone_set('Africa/Dar_es_Salaam');
 $startTime = microtime(true);
 $startDate = date("Y-m-d H:i:s");
 
-if (!file_exists($csvFile)) {
-    echo "❌ CSV file not found: {$csvFile}\n";
-    exit(1);
-}
-
-$handle = fopen($csvFile, 'r');
-if (!$handle) {
-    echo "❌ Failed to open file.\n";
-    exit(1);
-}
-
-$headers = fgetcsv($handle);
-$msisdnIndex = array_search('MSISDN', $headers);
-if ($msisdnIndex === false) {
-    echo "❌ 'MSISDN' column not found.\n";
-    fclose($handle);
-    exit(1);
-}
-
 // COUNTERS
 $totalSent = 0;
 $totalFailed = 0;
-$chunk = [];
-$chunkIndex = 0;
 
-while (($row = fgetcsv($handle)) !== false) {
-    $msisdn = trim((string)($row[$msisdnIndex] ?? ''));
-    if (!preg_match('/^255\d{9}$/', $msisdn)) {
-        echo "⚠️ Skipping invalid MSISDN: {$msisdn}\n";
+if (empty($csvFiles)) {
+    echo "❌ No CSV files configured.\n";
+    exit(1);
+}
+
+$totalFiles = count($csvFiles);
+foreach ($csvFiles as $fileIndex => $csvFile) {
+    echo "\n📂 Processing file " . ($fileIndex + 1) . "/{$totalFiles}: {$csvFile}\n";
+
+    if (!file_exists($csvFile)) {
+        echo "❌ CSV file not found: {$csvFile}\n";
         continue;
     }
 
-    $chunk[] = $msisdn;
-
-    if (count($chunk) >= $chunkSize) {
-        echo "🚀 Processing chunk " . (++$chunkIndex) . " of " . count($chunk) . " numbers...\n";
-        processChunk($chunk, $smsboxPorts, $message, $concurrency, $totalSent, $totalFailed);
-        $chunk = [];
+    $handle = fopen($csvFile, 'r');
+    if (!$handle) {
+        echo "❌ Failed to open file: {$csvFile}\n";
+        continue;
     }
-}
 
-// Final leftover chunk
-if (!empty($chunk)) {
-    echo "🚀 Processing final chunk " . (++$chunkIndex) . " of " . count($chunk) . " numbers...\n";
-    processChunk($chunk, $smsboxPorts, $message, $concurrency, $totalSent, $totalFailed);
-}
+    $headers = fgetcsv($handle);
+    if ($headers === false) {
+        echo "❌ Empty or invalid CSV: {$csvFile}\n";
+        fclose($handle);
+        continue;
+    }
 
-fclose($handle);
+    $msisdnIndex = array_search('MSISDN', $headers);
+    if ($msisdnIndex === false) {
+        echo "❌ 'MSISDN' column not found in {$csvFile}.\n";
+        fclose($handle);
+        continue;
+    }
+
+    $chunk = [];
+    $chunkIndex = 0;
+
+    while (($row = fgetcsv($handle)) !== false) {
+        $msisdn = trim((string)($row[$msisdnIndex] ?? ''));
+        if (!preg_match('/^255\d{9}$/', $msisdn)) {
+            echo "⚠️ Skipping invalid MSISDN in {$csvFile}: {$msisdn}\n";
+            continue;
+        }
+
+        $chunk[] = $msisdn;
+
+        if (count($chunk) >= $chunkSize) {
+            echo "🚀 Processing chunk " . (++$chunkIndex) . " of " . count($chunk) . " numbers...\n";
+            processChunk($chunk, $smsboxPorts, $message, $concurrency, $totalSent, $totalFailed);
+            $chunk = [];
+        }
+    }
+
+    // Final leftover chunk
+    if (!empty($chunk)) {
+        echo "🚀 Processing final chunk " . (++$chunkIndex) . " of " . count($chunk) . " numbers...\n";
+        processChunk($chunk, $smsboxPorts, $message, $concurrency, $totalSent, $totalFailed);
+    }
+
+    fclose($handle);
+}
 
 // WRAP-UP
 $endTime = microtime(true);
@@ -74,7 +95,7 @@ echo "❌ Total Failed: {$totalFailed}\n";
 echo "⏱️ Started at: {$startDate}\n";
 echo "✅ Ended at:   " . date("Y-m-d H:i:s") . "\n";
 echo "🕓 Duration:   {$duration}s ({$formatted})\n";
-echo "📊 Sent at rate: " . round($totalSent / $duration, 2) . " messages/sec\n";
+echo "📊 Sent at rate: " . ($duration > 0 ? round($totalSent / $duration, 2) : 0) . " messages/sec\n";
 
 // FUNCTION: Send SMS chunk using curl_multi
 function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent, &$totalFailed)
@@ -93,7 +114,7 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
             $url = "http://192.168.1.10:{$port}/cgi-bin/sendsms?" . http_build_query([
                 'username'  => 'afya',
                 'password'  => 'Afya4017',
-                'from'      => '15723',
+                'from'      => 'AFYACALL',
                 'to'        => $msisdn,
                 'text'      => $message,
                 'dlr-mask'  => 31,

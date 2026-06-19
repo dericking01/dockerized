@@ -5,16 +5,16 @@ import glob
 csv.field_size_limit(10**9)
 
 # === CONFIG ===
-input_dir  = "/app/files/input/03-Base"
-output_dir = "/app/files/output/03-Base-csv"
+input_dir  = "/app/files/input/05-base"
+output_dir = "/app/files/output/05-Base-csv"
 bad_rows_log = os.path.join(output_dir, "bad_rows.log")
 delimiter = "\t"
 
 os.makedirs(output_dir, exist_ok=True)
 
 # Expected input columns (positional)
-INPUT_COLS  = ["MPA_MSISDN", "TERRITORY"]
-OUTPUT_COLS = ["MSISDN", "TERRITORY"]
+INPUT_COLS  = ["MPA_MSISDN", "GENDER", "AGE"]
+OUTPUT_COLS = ["MSISDN", "GENDER", "AGE"]
 
 txt_files = sorted(glob.glob(os.path.join(input_dir, "*.txt")))
 
@@ -48,15 +48,17 @@ with open(bad_rows_log, "w", encoding="utf-8") as badfile:
 
                 parts = line.strip().split(delimiter)
 
-                if len(parts) == len(INPUT_COLS):
-                    msisdn    = parts[0].strip()
-                    territory = parts[1].strip()
-                    writer.writerow([msisdn, territory])
+                # MSISDN is required; other fields are optional.
+                msisdn = parts[0].strip() if len(parts) > 0 else ""
+                if msisdn:
+                    gender = parts[1].strip() if len(parts) > 1 else ""
+                    age    = parts[2].strip() if len(parts) > 2 else ""
+                    writer.writerow([msisdn, gender, age])
                     file_rows += 1
                 else:
                     badfile.write(
                         f"[{os.path.basename(txt_path)}] Line {i} skipped "
-                        f"(expected {len(INPUT_COLS)} cols, got {len(parts)}): {line}"
+                        f"(missing MSISDN): {line}"
                     )
                     file_bad += 1
 

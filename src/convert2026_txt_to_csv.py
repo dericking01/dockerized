@@ -4,9 +4,9 @@ import csv
 csv.field_size_limit(10**9)
 
 # === CONFIG ===
-input_file = "/app/files/input/03-Base/DND_APRIL.txt"
-output_file = "/app/files/output/03-Base-csv/DND_APRIL.csv"
-bad_rows_log = "/app/files/output/03-Base-csv/bad_rows.log"
+input_file = "/app/files/input/04-Base/May_DND_base.txt"
+output_file = "/app/files/output/04-Base-csv/May_DND_base.csv"
+bad_rows_log = "/app/files/output/04-Base-csv/bad_rows.log"
 delimiter = ","   # 🔥 FIX HERE
 
 os.makedirs(os.path.dirname(output_file), exist_ok=True)

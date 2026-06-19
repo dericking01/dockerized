@@ -5,9 +5,9 @@ import glob
 csv.field_size_limit(10**9)
 
 # === CONFIG ===
-base_dir        = "/app/files/output/special25"
-output_dir      = "/app/files/output/special25clean"
-dnd_file        = os.path.join(base_dir, "msisdns.csv")
+base_dir        = "/app/files/output/05-Base-csv"
+output_dir      = "/app/files/output/05-Base-clean"
+dnd_file        = os.path.join(base_dir, "JUNE_26_DND.csv")
 filter_log      = os.path.join(output_dir, "filter_summary.log")
 
 os.makedirs(output_dir, exist_ok=True)
@@ -29,9 +29,9 @@ except FileNotFoundError:
 
 print(f"✅ Loaded {len(dnd_msisdns)} DND MSISDNs\n")
 
-# === Step 2: Process all CSV files (except DND_APRIL.csv) ===
+# === Step 2: Process all CSV files (except JUNE_26_DND.csv) ===
 csv_files = sorted([f for f in glob.glob(os.path.join(base_dir, "*.csv")) 
-                    if os.path.basename(f) != "DND_APRIL.csv"])
+                    if os.path.basename(f) != "JUNE_26_DND.csv"])
 
 if not csv_files:
     print("No CSV files to process.")
@@ -56,18 +56,19 @@ with open(filter_log, "w", encoding="utf-8") as logfile:
              open(output_file, "w", newline="", encoding="utf-8") as outfile:
 
             reader = csv.DictReader(infile)
-            writer = csv.DictWriter(outfile, fieldnames=["MSISDN", "TERRITORY"])
+            writer = csv.DictWriter(outfile, fieldnames=["MSISDN", "GENDER", "AGE"])
             writer.writeheader()
 
             for row in reader:
                 file_total += 1
                 msisdn = row.get("MSISDN", "").strip()
-                territory = row.get("TERRITORY", "").strip()
+                gender = row.get("GENDER", "").strip()
+                age = row.get("AGE", "").strip()
 
                 if msisdn in dnd_msisdns:
                     file_filtered += 1
                 else:
-                    writer.writerow({"MSISDN": msisdn, "TERRITORY": territory})
+                    writer.writerow({"MSISDN": msisdn, "GENDER": gender, "AGE": age})
                     file_kept += 1
 
         total_processed += file_total

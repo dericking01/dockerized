@@ -13,8 +13,8 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/output/NSP_MARCH_26_LAKE_MERGED_CLEAN.csv"
-output_file = "/app/files/output/03_MAY_LAKE_MERGED_CLEAN.csv"
+input_file = "/app/files/output/04-Base-clean/May_SP_base_SOUTH_CLEAN.csv"
+output_file = "/app/files/output/May_SP_base_SOUTH_CLEAN_not_in_base.csv"
 
 # Read MSISDNs from CSV
 df_input = pd.read_csv(input_file)

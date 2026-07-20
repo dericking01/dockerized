@@ -3,12 +3,12 @@
 
 // CONFIGURATION
 $csvFiles = [
-    '/home/derrick/files/16_MAY_SOUTH_SMS.csv',
-    // '/home/derrick/files/26_APR_IVR_DAR_CLEAN.csv', --- IGNORE ---
+    '/home/derrick/files/test.csv',
+    '/home/derrick/files/20_JULY_LAKE_SMS.csv',
 ];
-$message = "Una maumivu ya kichwa, mapigo ya moyo kwenda kasi au uchovu wa mara kwa mara? Huenda ni presha ya damu. Usibahatishe kuhusu Afya yako. Jibu 3 kuchati na mimi";
+$message = "Umeambiwa 'si kitu kikubwa'... lakini bado una wasiwasi? Chat na daktari wa Afyacall kwa faragha. Jibu 3";
 $smsboxPorts = [6016, 6017, 6018];
-$concurrency = 11; // parallel requests per batch TPS 160
+$concurrency = 5; // parallel requests per batch TPS 160
 $chunkSize = 5000;
 $maxRetries = 3;
 date_default_timezone_set('Africa/Dar_es_Salaam');
@@ -116,7 +116,7 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
                 'from'      => '15723',
                 'to'        => $msisdn,
                 'text'      => $message,
-                'dlr-mask'  => 31,
+                // 'dlr-mask'  => 31,
             ]);
 
             $ch = curl_init($url);

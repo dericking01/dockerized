@@ -3,12 +3,12 @@
 
 // CONFIGURATION
 $csvFiles = [
-    '/home/derrick/files/16_MAY_NORTH_IVR.csv',
-    '/home/derrick/files/test.csv',
+    '/home/derrick/files/20_JULY_LAKE_IVR.csv',
 ];
-$message = "Presha ya damu huweza kuanza kimya kimya bila dalili za wazi. Fahamu ishara zake mapema kwa kusikiliza ushauri wa daktari sasa. Jibu 2 kujiunga";
+$message = "Kabla ya kuamini ushauri wa mitaani, sikiliza wataalamu wanasemaje kuhusu Afya. Jiunge sasa na Usikilize dondoo za Afya. Jibu 2";
 $smsboxPorts = [6016, 6017, 6018];
-$concurrency = 11; // parallel requests per batch TPS 160
+$targetTps = 200;
+$concurrency = 100; // Keep enough parallelism so 40 TPS can be sustained.
 $chunkSize = 5000;
 $maxRetries = 3;
 date_default_timezone_set('Africa/Dar_es_Salaam');
@@ -20,6 +20,10 @@ $startDate = date("Y-m-d H:i:s");
 // COUNTERS
 $totalSent = 0;
 $totalFailed = 0;
+$rateState = [
+    'windowStart' => microtime(true),
+    'sentInWindow' => 0,
+];
 
 if (empty($csvFiles)) {
     echo "❌ No CSV files configured.\n";
@@ -69,7 +73,7 @@ foreach ($csvFiles as $fileIndex => $csvFile) {
 
         if (count($chunk) >= $chunkSize) {
             echo "🚀 Processing chunk " . (++$chunkIndex) . " of " . count($chunk) . " numbers...\n";
-            processChunk($chunk, $smsboxPorts, $message, $concurrency, $totalSent, $totalFailed);
+            processChunk($chunk, $smsboxPorts, $message, $concurrency, $targetTps, $rateState, $totalSent, $totalFailed);
             $chunk = [];
         }
     }
@@ -77,7 +81,7 @@ foreach ($csvFiles as $fileIndex => $csvFile) {
     // Final leftover chunk
     if (!empty($chunk)) {
         echo "🚀 Processing final chunk " . (++$chunkIndex) . " of " . count($chunk) . " numbers...\n";
-        processChunk($chunk, $smsboxPorts, $message, $concurrency, $totalSent, $totalFailed);
+        processChunk($chunk, $smsboxPorts, $message, $concurrency, $targetTps, $rateState, $totalSent, $totalFailed);
     }
 
     fclose($handle);
@@ -94,10 +98,11 @@ echo "❌ Total Failed: {$totalFailed}\n";
 echo "⏱️ Started at: {$startDate}\n";
 echo "✅ Ended at:   " . date("Y-m-d H:i:s") . "\n";
 echo "🕓 Duration:   {$duration}s ({$formatted})\n";
+echo "🎯 Target TPS: {$targetTps}\n";
 echo "📊 Sent at rate: " . ($duration > 0 ? round($totalSent / $duration, 2) : 0) . " messages/sec\n";
 
 // FUNCTION: Send SMS chunk using curl_multi
-function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent, &$totalFailed)
+function processChunk($chunk, $smsboxPorts, $message, $concurrency, $targetTps, &$rateState, &$totalSent, &$totalFailed)
 {
     $portCount = count($smsboxPorts);
 
@@ -108,6 +113,7 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
         $batch = array_slice($chunk, $i, $concurrency);
 
         foreach ($batch as $key => $msisdn) {
+            throttleToTps($targetTps, $rateState);
             $port = $smsboxPorts[($i + $key) % $portCount];
 
             $url = "http://192.168.1.10:{$port}/cgi-bin/sendsms?" . http_build_query([
@@ -116,7 +122,7 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
                 'from'      => '15723',
                 'to'        => $msisdn,
                 'text'      => $message,
-                'dlr-mask'  => 31,
+                // 'dlr-mask'  => 31,
             ]);
 
             $ch = curl_init($url);
@@ -150,5 +156,28 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
         curl_multi_close($multiHandle);
         // Optional throttle
         // usleep(100000); // 0.1 second
+    }
+}
+
+function throttleToTps($targetTps, &$rateState)
+{
+    while (true) {
+        $now = microtime(true);
+        $elapsed = $now - $rateState['windowStart'];
+
+        if ($elapsed >= 1) {
+            $rateState['windowStart'] = $now;
+            $rateState['sentInWindow'] = 0;
+        }
+
+        if ($rateState['sentInWindow'] < $targetTps) {
+            $rateState['sentInWindow']++;
+            return;
+        }
+
+        $sleepUs = (int)((1 - $elapsed) * 1000000);
+        if ($sleepUs > 0) {
+            usleep($sleepUs);
+        }
     }
 }

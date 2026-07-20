@@ -3,13 +3,11 @@
 
 // CONFIGURATION
 $csvFiles = [
-    '/home/derrick/files/16_MAY_NORTH_DR.csv',
-    '/home/derrick/files/16_MAY_SOUTH_DR.csv',
-    // '/home/derrick/files/26_APR_IVR_DAR_CLEAN.csv',
+    '/home/derrick/files/20_JULY_LAKE_DR.csv',
 ];
-$message = "Maumivu ya kichwa, uchovu au mapigo ya moyo kwenda kasi vinaweza kuwa dalili za presha. Usingoje hali izidi. Piga 0900011111 kuongea na daktari";
+$message = "Kabla hujaamua kuvumilia tena, zungumza na daktari. Piga 0900011111 sasa. Afyacall ipo kwa ajili yako";
 $smsboxPorts = [6016, 6017, 6018];
-$concurrency = 11; // parallel requests per batch TPS 160
+$concurrency = 5; // parallel requests per batch TPS 160
 $chunkSize = 5000;
 $maxRetries = 3;
 date_default_timezone_set('Africa/Dar_es_Salaam');
@@ -117,7 +115,7 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
                 'from'      => 'AFYACALL',
                 'to'        => $msisdn,
                 'text'      => $message,
-                'dlr-mask'  => 31,
+                // 'dlr-mask'  => 31,
             ]);
 
             $ch = curl_init($url);

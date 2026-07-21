@@ -2,10 +2,10 @@
 <?php
 
 $inputFile = '/home/derrick/files/LAKE_NSP_BASE_CLEAN.csv';
-$outputFile = '/home/derrick/files/20_JULY_LAKE_DR.csv';
+$outputFile = '/home/derrick/files/21_JULY_LAKE_IVR.csv';
 
-$start = 2400001; // Starting from this line
-$limit = 100000; // Limit to this many lines
+$start = 2600001; // Starting from this line
+$limit = 10000000; // Limit to this many lines
 $currentLine = 0;
 $written = 0;
 

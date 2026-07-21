@@ -3,7 +3,7 @@
 
 // CONFIGURATION
 $csvFiles = [
-    '/home/derrick/files/20_JULY_LAKE_IVR.csv',
+    '/home/derrick/files/21_JULY_LAKE_IVR.csv',
 ];
 $message = "Kabla ya kuamini ushauri wa mitaani, sikiliza wataalamu wanasemaje kuhusu Afya. Jiunge sasa na Usikilize dondoo za Afya. Jibu 2";
 $smsboxPorts = [6016, 6017, 6018];
@@ -52,7 +52,11 @@ foreach ($csvFiles as $fileIndex => $csvFile) {
         continue;
     }
 
-    $msisdnIndex = array_search('MSISDN', $headers);
+    $normalizedHeaders = array_map(function ($header) {
+        return strtolower(trim((string) $header));
+    }, $headers);
+
+    $msisdnIndex = array_search('msisdn', $normalizedHeaders);
     if ($msisdnIndex === false) {
         echo "❌ 'MSISDN' column not found in {$csvFile}.\n";
         fclose($handle);
@@ -63,9 +67,9 @@ foreach ($csvFiles as $fileIndex => $csvFile) {
     $chunkIndex = 0;
 
     while (($row = fgetcsv($handle)) !== false) {
-        $msisdn = trim((string)($row[$msisdnIndex] ?? ''));
-        if (!preg_match('/^255\d{9}$/', $msisdn)) {
-            echo "⚠️ Skipping invalid MSISDN in {$csvFile}: {$msisdn}\n";
+        $msisdn = extractMsisdn($row, $msisdnIndex);
+        if ($msisdn === null) {
+            echo "⚠️ Skipping invalid MSISDN in {$csvFile}: " . implode(', ', array_map('strval', $row)) . "\n";
             continue;
         }
 
@@ -100,6 +104,33 @@ echo "✅ Ended at:   " . date("Y-m-d H:i:s") . "\n";
 echo "🕓 Duration:   {$duration}s ({$formatted})\n";
 echo "🎯 Target TPS: {$targetTps}\n";
 echo "📊 Sent at rate: " . ($duration > 0 ? round($totalSent / $duration, 2) : 0) . " messages/sec\n";
+
+function extractMsisdn($row, $msisdnIndex)
+{
+    $rawValue = '';
+
+    if ($msisdnIndex !== false && isset($row[$msisdnIndex])) {
+        $rawValue = trim((string) $row[$msisdnIndex]);
+    } elseif (!empty($row)) {
+        $rawValue = trim((string) $row[0]);
+    }
+
+    $rawValue = trim($rawValue, "\" \t\n\r\0\x0B");
+
+    if (preg_match('/^255\d{9}$/', $rawValue)) {
+        return $rawValue;
+    }
+
+    if (preg_match('/\b(255\d{9})\b/', $rawValue, $matches)) {
+        return $matches[1];
+    }
+
+    if (preg_match('/^(\d{12,13})/', $rawValue, $matches)) {
+        return $matches[1];
+    }
+
+    return null;
+}
 
 // FUNCTION: Send SMS chunk using curl_multi
 function processChunk($chunk, $smsboxPorts, $message, $concurrency, $targetTps, &$rateState, &$totalSent, &$totalFailed)

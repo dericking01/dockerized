@@ -10,7 +10,7 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Output file path
-output_file = "/app/files/output/eid_el_haji.csv"
+output_file = "/app/files/output/15_JULY_DR_INACTIVE_60_DAYS.csv"
 
 # Connect to Postgres
 conn = psycopg2.connect(
@@ -25,6 +25,7 @@ cur = conn.cursor()
 # Query database
 query = """
     SELECT DISTINCT customer_msisdn FROM subscription.subscribers
+    WHERE plan_code='921465_P03' AND (last_charged_at < '2026-05-16' OR last_charged_at is null)
 """
 cur.execute(query)
 db_msisdns = [str(row[0]).strip() for row in cur.fetchall()]

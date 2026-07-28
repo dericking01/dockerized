@@ -13,8 +13,8 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/output/04-Base-clean/May_SP_base_SOUTH_CLEAN.csv"
-output_file = "/app/files/output/May_SP_base_SOUTH_CLEAN_not_in_base.csv"
+input_file = "/app/files/output/06-Base-clean/LAKE_SP_BASE_CLEAN.csv"
+output_file = "/app/files/output/JULY_26_NSP_LAKE_CLEAN_not_in_base.csv"
 
 # Read MSISDNs from CSV
 df_input = pd.read_csv(input_file)
@@ -45,5 +45,5 @@ non_existing_msisdns = input_msisdns.difference(db_msisdns)
 df_output = pd.DataFrame({"MSISDN": list(non_existing_msisdns)})
 df_output.to_csv(output_file, index=False)
 
-print(f"✅ Done! Found {len(non_existing_msisdns)} MSISDNs NOT in customer.customers.")
+print(f"✅ Done! Found {len(non_existing_msisdns)} MSISDNs NOT in subscription.subscribers.")
 print(f"Output saved to {output_file}")

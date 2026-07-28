@@ -16,9 +16,16 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 input_file = "/app/files/output/06-Base-clean/LAKE_SP_BASE_CLEAN.csv"
 output_file = "/app/files/output/JULY_26_NSP_LAKE_CLEAN_not_in_base.csv"
 
+def normalize_msisdn(series):
+    # Force string dtype up front so pandas never silently infers float64
+    # (which turns e.g. 254712345678 into "254712345678.0" and breaks matching).
+    s = series.astype(str).str.strip()
+    s = s.str.replace(r"\.0$", "", regex=True)
+    return set(s[~s.isin(["", "nan", "None"])])
+
 # Read MSISDNs from CSV
-df_input = pd.read_csv(input_file)
-input_msisdns = set(df_input['MSISDN'].astype(str).str.strip())
+df_input = pd.read_csv(input_file, dtype={"MSISDN": str})
+input_msisdns = normalize_msisdn(df_input['MSISDN'])
 
 # Connect to Postgres
 conn = psycopg2.connect(
@@ -33,7 +40,7 @@ cur = conn.cursor()
 # Query all customer MSISDNs
 query = "SELECT DISTINCT customer_msisdn FROM subscription.subscribers;"
 cur.execute(query)
-db_msisdns = set(str(row[0]).strip() for row in cur.fetchall())
+db_msisdns = normalize_msisdn(pd.Series([row[0] for row in cur.fetchall()]))
 
 cur.close()
 conn.close()

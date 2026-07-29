@@ -6,4 +6,4 @@ services:
     env_file:
       - .env
     working_dir: /app/src
-    command: ["python", "not_in_base.py"]
+    command: ["python", "smschatbot_inactive_in_sms_logs.py"]

@@ -1,3 +1,4 @@
+import csv
 import pandas as pd
 import psycopg2
 import os
@@ -13,8 +14,8 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/output/06-Base-clean/LAKE_SP_BASE_CLEAN.csv"
-output_file = "/app/files/output/JULY_26_NSP_LAKE_CLEAN_not_in_base.csv"
+input_file = "/app/files/output/06-Base-clean/DARCOAST_NSP_BASE_CLEAN.csv"
+output_file = "/app/files/output/JULY_26_NSP_DAR_CLEAN_not_in_base.csv"
 
 def normalize_msisdn(series):
     # Force string dtype up front so pandas never silently infers float64
@@ -24,8 +25,16 @@ def normalize_msisdn(series):
     return set(s[~s.isin(["", "nan", "None"])])
 
 # Read MSISDNs from CSV
-df_input = pd.read_csv(input_file, dtype={"MSISDN": str})
-input_msisdns = normalize_msisdn(df_input['MSISDN'])
+# Note: this file's rows pack "MSISDN,GENDER,AGE" into the single quoted
+# MSISDN field (e.g. "255746116585,M         ,39"), leaving GENDER/AGE
+# empty, so the real MSISDN is only the part before the first comma. The
+# file also has a truncated final line with an unterminated quote, which
+# pandas' C parser rejects (EOF inside string) but the csv module tolerates.
+with open(input_file, newline="") as f:
+    reader = csv.reader(f)
+    next(reader, None)  # skip header
+    raw_msisdns = [row[0].split(",")[0] for row in reader if row]
+input_msisdns = normalize_msisdn(pd.Series(raw_msisdns))
 
 # Connect to Postgres
 conn = psycopg2.connect(

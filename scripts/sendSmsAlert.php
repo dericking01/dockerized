@@ -8,9 +8,9 @@ function sendSmsAlert($currentCount, $isRecovery = false, $doctorNames = [])
     }
 
     $recipients = [
-        '255743956595',
+        // '255743956595',
         '255756532635',
-        '255757064197',
+        // '255757064197',
         '255754710722',
         '255746088031',
         '255791477166',

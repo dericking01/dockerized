@@ -22,7 +22,7 @@ $thresholds = [75, 85, 95, 98];
 $toEmails = [
     'derrick@afyacall.co.tz',
     'svmgata@afyacall.co.tz',
-    'salhat.masunga@afyacall.co.tz',
+    // 'salhat.masunga@afyacall.co.tz',
     'fmodamba@afyacall.co.tz',
     'smwamba@afyacall.co.tz',
     'ivan.kakorozya@afyacall.co.tz',

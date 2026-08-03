@@ -1,10 +1,14 @@
+import re
+from datetime import date
+
 import pandas as pd
 import psycopg2
 import os
 
 # This script checks how many MSISDNs from an input CSV of inactive SMS
 # chatbot users are also present in chat.incoming_sms_logs after a cutoff
-# timestamp (i.e. they messaged back in since being marked inactive).
+# timestamp, and how many interacted with the chatbot (chat.chat_history)
+# after a cutoff date (i.e. they re-engaged since being marked inactive).
 
 # Load environment variables
 DB_HOST = os.getenv("DB_HOST")
@@ -14,10 +18,15 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/input/27_JULY_SMSCHATBOT_INACTIVE_60_DAYS.csv"
-output_file = "/app/files/output/27_JULY_SMSCHATBOT_INACTIVE_60_DAYS_in_sms_logs.csv"
+input_file = "/app/files/input/29_JULY_SMSCHATBOT_INACTIVE_60_DAYS.csv"
+sms_logs_output_file = "/app/files/output/29_JULY_SMSCHATBOT_INACTIVE_60_DAYS_in_sms_logs.csv"
+chat_history_output_file = "/app/files/output/29_JULY_SMSCHATBOT_INACTIVE_60_DAYS_in_chat_history.csv"
 
-CUTOFF = "2026-07-27 13:00:00"
+SMS_LOGS_CUTOFF = "2026-07-29 13:00:00"
+CHAT_HISTORY_CUTOFF_DATE = date(2026, 7, 29)
+
+# session_id format: "<msisdn>-dd-mm-yyyy", e.g. "255724312337-26-07-2026"
+SESSION_ID_RE = re.compile(r"^(\d+)-(\d{2})-(\d{2})-(\d{4})$")
 
 def normalize_msisdn(series):
     # Force string dtype up front so pandas never silently infers float64
@@ -43,19 +52,36 @@ cur = conn.cursor()
 
 # Query MSISDNs that messaged in after the cutoff (stored with a leading '+')
 query = "SELECT DISTINCT msisdn FROM chat.incoming_sms_logs WHERE created_at > %s;"
-cur.execute(query, (CUTOFF,))
+cur.execute(query, (SMS_LOGS_CUTOFF,))
 log_msisdns = normalize_msisdn(pd.Series([row[0] for row in cur.fetchall()]))
+
+# Query chatbot session ids and pull out MSISDNs whose session date is after the cutoff
+cur.execute("SELECT session_id FROM chat.chat_history;")
+chat_msisdns = set()
+for (session_id,) in cur.fetchall():
+    match = SESSION_ID_RE.match(str(session_id).strip())
+    if not match:
+        continue
+    msisdn, day, month, year = match.groups()
+    session_date = date(int(year), int(month), int(day))
+    if session_date > CHAT_HISTORY_CUTOFF_DATE:
+        chat_msisdns.add(msisdn)
 
 cur.close()
 conn.close()
 
-# Find input MSISDNs that are also present in the SMS logs
-matched_msisdns = input_msisdns.intersection(log_msisdns)
+# Find input MSISDNs that are also present in the SMS logs / chat history
+matched_sms_msisdns = input_msisdns.intersection(log_msisdns)
+matched_chat_msisdns = input_msisdns.intersection(chat_msisdns)
 
-# Save to output CSV
-df_output = pd.DataFrame({"MSISDN": sorted(matched_msisdns)})
-df_output.to_csv(output_file, index=False)
+# Save results to output CSVs
+pd.DataFrame({"MSISDN": sorted(matched_sms_msisdns)}).to_csv(sms_logs_output_file, index=False)
+pd.DataFrame({"MSISDN": sorted(matched_chat_msisdns)}).to_csv(chat_history_output_file, index=False)
 
-print(f"✅ Done! {len(matched_msisdns)} of {len(input_msisdns)} input MSISDNs were found in "
-      f"chat.incoming_sms_logs after {CUTOFF}.")
-print(f"Output saved to {output_file}")
+print(f"✅ Done! {len(matched_sms_msisdns)} of {len(input_msisdns)} input MSISDNs were found in "
+      f"chat.incoming_sms_logs after {SMS_LOGS_CUTOFF}.")
+print(f"Output saved to {sms_logs_output_file}")
+
+print(f"✅ Done! {len(matched_chat_msisdns)} of {len(input_msisdns)} input MSISDNs interacted with "
+      f"the chatbot (chat.chat_history) after {CHAT_HISTORY_CUTOFF_DATE}.")
+print(f"Output saved to {chat_history_output_file}")

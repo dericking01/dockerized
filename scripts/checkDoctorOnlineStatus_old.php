@@ -17,14 +17,10 @@ if (!$env) {
 
 date_default_timezone_set("Africa/Dar_es_Salaam");
 
-$voice_host     = $env['VOICE_HOST'];
-$voice_host_user = $env['VOICE_HOST_USER'];
-$voice_host_password = $env['VOICE_HOST_PASSWORD'];
-$host     = $env['VOICE_DB_HOST'];
-$db       = $env['VOICE_DB_NAME'];
-$db_port  = $env['VOICE_DB_PORT'];
-$user     = $env['VOICE_DB_USERNAME'];
-$password = $env['VOICE_DB_PASSWORD'];
+$host     = $env['DB_HOST'];
+$db       = $env['DB_NAME'];
+$user     = $env['DB_USERNAME'];
+$password = $env['DB_PASSWORD'];
 
 $dsn = "mysql:host=$host;dbname=$db;charset=UTF8";
 $stateFile = __DIR__ . '/logs/doctor_status_state.txt'; // Store previous doctor count
@@ -60,10 +56,15 @@ try {
     // Recipients
     $recipients = [
         'derrick@afyacall.co.tz',
+        // 'svmgata@afyacall.co.tz',
+        // 'salhat.masunga@afyacall.co.tz',
+        // 'fmodamba@afyacall.co.tz',
+        // 'smwamba@afyacall.co.tz',
         'ivan.kakorozya@afyacall.co.tz',
         'bennet.kakorozya@afyacall.co.tz',
         'wvmgata@afyacall.co.tz',
-    ];VOICE_
+        // 'modamba@gmail.com',
+    ];
 
     foreach ($recipients as $email) {
         $mail->addAddress($email);

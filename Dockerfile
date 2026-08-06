@@ -2,8 +2,8 @@
 
 FROM php:8.2-cli
 
-# Install PHP extensions
-RUN apt-get update && apt-get install -y cron unzip netcat-openbsd git sshpass curl libpq-dev \
+# Install PHP extensions and Postgres client
+RUN apt-get update && apt-get install -y cron unzip netcat-openbsd git sshpass curl libpq-dev postgresql-client \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql pgsql
 
 # Install Composer globally

@@ -1,14 +1,32 @@
 <?php
-function sendSmsAlert($currentCount, $isRecovery = false, $doctorNames = [])
+function shortenSms(string $message, int $limit = 160): string
 {
-    //Log doctor names for debugging
+    if (mb_strlen($message) <= $limit) {
+        return $message;
+    }
+
+    return mb_substr($message, 0, $limit - 3) . '...';
+}
+
+function sendSmsAlert($currentCount, $isRecovery = false, array $providerGroups = [])
+{
     if (!$isRecovery) {
-        echo "📋 Doctors currently online: " . implode(', ', $doctorNames) .
-            "\n";
+        $summaryParts = [];
+        foreach ($providerGroups as $type => $info) {
+            $names = array_slice($info['firstNames'] ?? [], 0, 4);
+            $label = ucfirst(strtolower($type));
+            if (!empty($names)) {
+                $summaryParts[] = "{$label}: " . implode(', ', $names);
+            } else {
+                $summaryParts[] = "{$label}: {$info['count']}";
+            }
+        }
+
+        echo "📋 Providers currently online: " . implode(' | ', $summaryParts) . "\n";
     }
 
     $recipients = [
-        // '255743956595',
+        '255743956595',
         '255756532635',
         // '255757064197',
         '255754710722',
@@ -16,16 +34,30 @@ function sendSmsAlert($currentCount, $isRecovery = false, $doctorNames = [])
         '255791477166',
     ];
 
-    // Build message
     if ($isRecovery) {
-        $message = "RECOVERY: $currentCount doctors online now. All OK.";
+        $message = "RECOVERY: {$currentCount} providers online now. All OK.";
     } else {
-        $firstNames = array_map(fn($name) => explode(' ', $name)[0], $doctorNames);
-        $doctorList = !empty($firstNames) ? ' (' . implode(', ', $firstNames) . ')' : '';
-        $message = "ALERT: Only $currentCount doctor(s) are online$doctorList. Check system.";
+        $parts = [];
+        foreach ($providerGroups as $type => $info) {
+            $label = ucfirst(strtolower($type));
+            $firstNames = array_slice($info['firstNames'] ?? [], 0, 4);
+            if (!empty($firstNames)) {
+                $parts[] = "{$label}: " . implode(', ', $firstNames);
+            } else {
+                $parts[] = "{$label}: {$info['count']}";
+            }
+        }
+
+        $groupText = implode(' | ', $parts);
+        $message = "ALERT: Only {$currentCount} available provider(s) are online";
+        if ($groupText !== '') {
+            $message .= " - {$groupText}";
+        }
+        $message .= '.';
+        $message = shortenSms($message, 160);
     }
 
-    echo "📨 SMS Message: \"$message\"\n";
+    echo "📨 SMS Message: \"{$message}\"\n";
 
     foreach ($recipients as $msisdn) {
         $query = http_build_query([
@@ -37,7 +69,7 @@ function sendSmsAlert($currentCount, $isRecovery = false, $doctorNames = [])
             'text'       => $message
         ]);
 
-        $url = "http://192.168.1.10:6017/cgi-bin/sendsms?$query";
+        $url = "http://192.168.1.10:6017/cgi-bin/sendsms?{$query}";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -45,9 +77,9 @@ function sendSmsAlert($currentCount, $isRecovery = false, $doctorNames = [])
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            echo "❌ SMS to $msisdn failed: " . curl_error($ch) . "\n";
+            echo "❌ SMS to {$msisdn} failed: " . curl_error($ch) . "\n";
         } else {
-            echo "✅ SMS sent to $msisdn\n";
+            echo "✅ SMS sent to {$msisdn}\n";
         }
 
         curl_close($ch);

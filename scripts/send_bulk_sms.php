@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/28_APR_SMS_LAKE.csv';
-$message = "Jilinde na UTI: kunywa maji mengi, usizuie mkojo na zingatia usafi wa sehemu za siri. Ikiwa unahisi dalili za UTI, chati sasa na mtaalamu kwa ushauri. Jibu 3";
+$csvFile = '/home/derrick/files/8_AUG_INACTIVE_60_DAYS_SMS_PROMO.csv';
+$message = "Ofa maalum kwako! Furahia siku 2 za ushauri wa afya kupitia SMS bila malipo. Ofa hii ni ya muda mfupi. Jibu 4 kuchati na mimi";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;
@@ -96,7 +96,7 @@ function processChunk($chunk, $smsboxPorts, $message, $concurrency, &$totalSent,
                 'from'      => '15723',
                 'to'        => $msisdn,
                 'text'      => $message,
-                'dlr-mask'  => 31,
+                // 'dlr-mask'  => 31,
             ]);
 
             $ch = curl_init($url);

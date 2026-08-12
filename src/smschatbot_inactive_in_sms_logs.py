@@ -18,12 +18,13 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/input/29_JULY_SMSCHATBOT_INACTIVE_60_DAYS.csv"
-sms_logs_output_file = "/app/files/output/29_JULY_SMSCHATBOT_INACTIVE_60_DAYS_in_sms_logs.csv"
-chat_history_output_file = "/app/files/output/29_JULY_SMSCHATBOT_INACTIVE_60_DAYS_in_chat_history.csv"
+input_file = "/app/files/input/3_AUG_INACTIVE_60_DAYS_SMS_PROMO.csv"
+sms_logs_output_file = "/app/files/output/3_AUG_INACTIVE_60_DAYS_SMS_PROMO_in_sms_logs.csv"
+chat_history_output_file = "/app/files/output/3_AUG_INACTIVE_60_DAYS_SMS_PROMO_in_chat_history.csv"
 
-SMS_LOGS_CUTOFF = "2026-07-29 13:00:00"
-CHAT_HISTORY_CUTOFF_DATE = date(2026, 7, 29)
+SMS_LOGS_CUTOFF = "2026-08-03 13:00:00"
+CHAT_HISTORY_CUTOFF_DATE = date(2026, 8, 3)
+PAYMENTS_CUTOFF_DATE = "2026-08-05"
 
 # session_id format: "<msisdn>-dd-mm-yyyy", e.g. "255724312337-26-07-2026"
 SESSION_ID_RE = re.compile(r"^(\d+)-(\d{2})-(\d{2})-(\d{4})$")
@@ -67,12 +68,28 @@ for (session_id,) in cur.fetchall():
     if session_date > CHAT_HISTORY_CUTOFF_DATE:
         chat_msisdns.add(msisdn)
 
-cur.close()
-conn.close()
-
 # Find input MSISDNs that are also present in the SMS logs / chat history
 matched_sms_msisdns = input_msisdns.intersection(log_msisdns)
 matched_chat_msisdns = input_msisdns.intersection(chat_msisdns)
+
+# Of those who responded (found in chat.incoming_sms_logs), count payment
+# records by status after the cutoff date.
+payment_status_counts = pd.DataFrame(columns=["status", "count"])
+if matched_sms_msisdns:
+    cur.execute(
+        """
+        SELECT status, COUNT(*) AS count
+        FROM billing.icg_payments
+        WHERE msisdn = ANY(%s) AND created_at > %s
+        GROUP BY status
+        ORDER BY count DESC;
+        """,
+        (list(matched_sms_msisdns), PAYMENTS_CUTOFF_DATE)
+    )
+    payment_status_counts = pd.DataFrame(cur.fetchall(), columns=["status", "count"])
+
+cur.close()
+conn.close()
 
 # Save results to output CSVs
 pd.DataFrame({"MSISDN": sorted(matched_sms_msisdns)}).to_csv(sms_logs_output_file, index=False)
@@ -85,3 +102,7 @@ print(f"Output saved to {sms_logs_output_file}")
 print(f"✅ Done! {len(matched_chat_msisdns)} of {len(input_msisdns)} input MSISDNs interacted with "
       f"the chatbot (chat.chat_history) after {CHAT_HISTORY_CUTOFF_DATE}.")
 print(f"Output saved to {chat_history_output_file}")
+
+print(f"\nPayment status counts for {len(matched_sms_msisdns)} responders "
+      f"(billing.icg_payments, created_at > {PAYMENTS_CUTOFF_DATE}):")
+print(payment_status_counts.to_string(index=False))

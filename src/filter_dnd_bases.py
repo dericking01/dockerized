@@ -5,9 +5,9 @@ import glob
 csv.field_size_limit(10**9)
 
 # === CONFIG ===
-base_dir        = "/app/files/output/06-Base-csv"
-output_dir      = "/app/files/output/06-Base-clean"
-dnd_file        = os.path.join(base_dir, "DND_BASE.csv")
+base_dir        = "/app/files/output/07-Base-csv"
+output_dir      = "/app/files/output/07-Base-clean"
+dnd_file        = os.path.join(base_dir, "NEW_DND_BASE.csv")
 filter_log      = os.path.join(output_dir, "filter_summary.log")
 
 os.makedirs(output_dir, exist_ok=True)

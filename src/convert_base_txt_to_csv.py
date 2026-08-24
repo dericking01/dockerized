@@ -5,8 +5,8 @@ import glob
 csv.field_size_limit(10**9)
 
 # === CONFIG ===
-input_dir  = "/app/files/input/06-Base"
-output_dir = "/app/files/output/06-Base-csv"
+input_dir  = "/app/files/input/07-Base"
+output_dir = "/app/files/output/07-Base-csv"
 bad_rows_log = os.path.join(output_dir, "bad_rows.log")
 delimiter = "\t"
 

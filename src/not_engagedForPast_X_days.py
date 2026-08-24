@@ -10,7 +10,7 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # --- Output file path ---
-output_file = "/app/files/output/customers_inactive_90days.csv"
+output_file = "/app/files/output/customers_inactive_30days.csv"
 
 # --- Connect to Postgres ---
 conn = psycopg2.connect(
@@ -21,8 +21,8 @@ conn = psycopg2.connect(
     password=DB_PASSWORD
 )
 cur = conn.cursor()
-# This script identifies customers who have NOT had any SUCCESS payments in the last 90 days.
-# --- Query: customers who have NOT had a SUCCESS payment in last 90 days ---
+# This script identifies customers who have NOT had any SUCCESS payments in the last 30 days.
+# --- Query: customers who have NOT had a SUCCESS payment in last 30 days ---
 query = """
 WITH latest_payment AS (
     SELECT
@@ -39,7 +39,7 @@ LEFT JOIN latest_payment lp
 WHERE c.msisdn LIKE '255%'
   AND (
         lp.last_success_date IS NULL
-        OR lp.last_success_date < NOW() - INTERVAL '90 days'
+        OR lp.last_success_date < NOW() - INTERVAL '30 days'
       );
 """
 
@@ -57,5 +57,5 @@ df_output = pd.DataFrame(rows, columns=["MSISDN"])
 # --- Save to CSV ---
 df_output.to_csv(output_file, index=False)
 
-print(f"✅ Done! Exported {len(df_output)} inactive customers (>90 days).")
+print(f"✅ Done! Exported {len(df_output)} inactive customers (>30 days).")
 print(f"Output saved to {output_file}")

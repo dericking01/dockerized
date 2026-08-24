@@ -18,13 +18,13 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/input/3_AUG_INACTIVE_60_DAYS_SMS_PROMO.csv"
-sms_logs_output_file = "/app/files/output/3_AUG_INACTIVE_60_DAYS_SMS_PROMO_in_sms_logs.csv"
-chat_history_output_file = "/app/files/output/3_AUG_INACTIVE_60_DAYS_SMS_PROMO_in_chat_history.csv"
+input_file = "/app/files/input/11_AUG_INACTIVE_60_DAYS_SMS_PROMO.csv"
+sms_logs_output_file = "/app/files/output/11_AUG_INACTIVE_60_DAYS_SMS_PROMO_in_sms_logs.csv"
+chat_history_output_file = "/app/files/output/11_AUG_INACTIVE_60_DAYS_SMS_PROMO_in_chat_history.csv"
 
-SMS_LOGS_CUTOFF = "2026-08-03 13:00:00"
-CHAT_HISTORY_CUTOFF_DATE = date(2026, 8, 3)
-PAYMENTS_CUTOFF_DATE = "2026-08-05"
+SMS_LOGS_CUTOFF = "2026-08-11 13:00:00"
+CHAT_HISTORY_CUTOFF_DATE = date(2026, 8, 11)
+PAYMENTS_CUTOFF_DATE = "2026-08-13"
 
 # session_id format: "<msisdn>-dd-mm-yyyy", e.g. "255724312337-26-07-2026"
 SESSION_ID_RE = re.compile(r"^(\d+)-(\d{2})-(\d{2})-(\d{4})$")

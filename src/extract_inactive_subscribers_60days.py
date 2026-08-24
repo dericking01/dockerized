@@ -16,7 +16,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 PLAN_CODE = "921465_P02"
 
 # --- Output file path ---
-output_file = "/app/files/output/27_JULY_SMS_INACTIVE_60_DAYS.csv"
+output_file = "/app/files/output/24_AUGUST_SMS_INACTIVE_30_DAYS.csv"
 
 # --- Logging setup ---
 logging.basicConfig(
@@ -27,9 +27,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # This script finds subscribers on PLAN_CODE whose most recent SUCCESS
-# payment (billing.icg_payments.created_at) is older than 60 days.
+# payment (billing.icg_payments.created_at) is older than 30 days.
 # Subscribers who have NEVER had a SUCCESS payment are also included,
-# since it has been (indefinitely) longer than 60 days since their last
+# since it has been (indefinitely) longer than 30 days since their last
 # successful payment.
 QUERY = """
 WITH recent_success AS (
@@ -53,7 +53,7 @@ FROM subscriber_base sb
 LEFT JOIN recent_success rs
     ON rs.msisdn = sb.customer_msisdn
 WHERE rs.last_success_at IS NULL
-   OR rs.last_success_at < NOW() - INTERVAL '60 days'
+   OR rs.last_success_at < NOW() - INTERVAL '30 days'
 """
 
 logger.info("Connecting to %s@%s:%s ...", DB_NAME, DB_HOST, DB_PORT)
@@ -66,7 +66,7 @@ conn = psycopg2.connect(
 )
 cur = conn.cursor()
 
-logger.info("Querying subscribers on plan_code=%s with last SUCCESS payment > 60 days ago ...", PLAN_CODE)
+logger.info("Querying subscribers on plan_code=%s with last SUCCESS payment > 30 days ago ...", PLAN_CODE)
 start = time.time()
 cur.execute(QUERY, {"plan_code": PLAN_CODE})
 rows = cur.fetchall()
@@ -86,6 +86,6 @@ df_output.to_csv(output_file, index=False)
 
 logger.info("Query completed in %.2fs", elapsed)
 logger.info("Subscribers found with no SUCCESS payment at all: %d", never_paid_count)
-logger.info("Subscribers found with last SUCCESS payment > 60 days ago: %d", paid_over_60_days_count)
+logger.info("Subscribers found with last SUCCESS payment > 30 days ago: %d", paid_over_60_days_count)
 logger.info("Done! Exported %d MSISDNs.", len(db_msisdns))
 logger.info("Output saved to %s", output_file)

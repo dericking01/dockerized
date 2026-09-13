@@ -3,10 +3,9 @@
 
 // CONFIGURATION
 $csvFiles = [
-    '/home/derrick/files/test.csv',
-    '/home/derrick/files/8_AUG_SOUTH_SMS.csv',
+    '/home/derrick/files/13_SEPT_LAKE_SP_SMS.csv',
 ];
-$message = "AFYACALL: Kisukari kinaweza kuanza kimya kimya. Je, unajua jinsi ya kupunguza hatari yake? Chat na daktari wa kidigitali sasa. Jibu 3 kuchati na mimi";
+$message = "AFYACALL: Unalala masaa ya kutosha lakini unaamka bado umechoka? Afya yako inaweza kuwa inasema kitu. Chat na daktari wa kidigitali. Jibu 3";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 5; // parallel requests per batch TPS 160
 $chunkSize = 5000;

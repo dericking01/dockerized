@@ -1,11 +1,13 @@
 #!/usr/bin/php
 <?php
 
-$inputFile = '/home/derrick/files/27i_JULY_SMS_INACTIVE_60_DAYS.csv';
-$outputFile = '/home/derrick/files/8_AUG_INACTIVE_60_DAYS_SMS_PROMO.csv';
-// 27i_JULY_SMS_INACTIVE_60_DAYS.csv promo base ended at 30001
-$start = 30001; // Starting from this line
-$limit = 10000; // Limit to this many lines
+$inputFile = '/home/derrick/files/NEW_LAKE_SP_CLEAN_not_in_base.csv';
+$outputFile = '/home/derrick/files/13_SEPT_LAKE_SP_IVR.csv';
+// 27i_JULY_SMS_INACTIVE_60_DAYS.csv promo base ended at 240001
+// 24_EXTRACT_AUG_INACTIVE_30_DAYS_IVR_PROMO.csv promo base ended at 50000
+// 24_EXTRACT_AUGUST_SMS_INACTIVE_30_DAYS.csv promo base ended at 50000
+$start = 1600001; // Starting from this line
+$limit = 1500000; // Limit to this many lines 23_AUG_LAKE_two_IVR
 $currentLine = 0;
 $written = 0;
 

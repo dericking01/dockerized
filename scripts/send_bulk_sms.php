@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/8_AUG_INACTIVE_60_DAYS_SMS_PROMO.csv';
-$message = "Ofa maalum kwako! Furahia siku 2 za ushauri wa afya kupitia SMS bila malipo. Ofa hii ni ya muda mfupi. Jibu 4 kuchati na mimi";
+$csvFile = '/home/derrick/files/24_AUGUST_SMS_INACTIVE_30_DAYS_PROMO.csv';
+$message = "Ofa maalum kwako! Furahia siku 2 za ushauri wa afya kupitia SMS bila malipo. Ofa hii ni ya muda mfupi. Jibu 5 kuchati na mimi";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;

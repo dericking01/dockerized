@@ -3,10 +3,10 @@
 
 // CONFIGURATION
 $csvFiles = [
-    '/home/derrick/files/8_AUG_DARCOAST_IVR.csv',
-    '/home/derrick/files/8_AUG_SOUTH_IVR.csv',
+    '/home/derrick/files/13_SEPT_SOUTH_SP_IVR.csv',
+    '/home/derrick/files/13_SEPT_LAKE_SP_IVR.csv',
 ];
-$message = "AFYACALL: Kisukari kinaweza kuanza kimya kimya. Jua hatua za kupunguza hatari yake mapema. Sikiliza dondoo za afya kutoka kwa daktari. Jibu 2 kujiunga";
+$message = "AFYACALL: Usingizi mzuri ni sehemu ya afya bora. Je, unajua nini huharibu usingizi wako? Sikiliza dondoo kutoka kwa wataalamu. Jibu 2 kujiunga";
 $smsboxPorts = [6016, 6017, 6018];
 $targetTps = 200;
 $concurrency = 100; // Keep enough parallelism so 40 TPS can be sustained.

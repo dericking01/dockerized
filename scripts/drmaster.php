@@ -3,9 +3,10 @@
 
 // CONFIGURATION
 $csvFiles = [
-    '/home/derrick/files/8_AUG_SOUTH_DR.csv',
+    '/home/derrick/files/test.csv',
+    '/home/derrick/files/13_SEPT_LAKE_SP_DR.csv',
 ];
-$message = "Unapata maumivu au changamoto yoyote ile wakati wa kunyonyesha? Usiteseke kimyakimya. Ongea na daktari wa AfyaCall. Piga 0900011111";
+$message = "Usingizi umepungua au unaamka umechoka kila siku? Usizoe hali hiyo bila kujua sababu. Ongea na daktari sasa. Piga 0900011111";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 5; // parallel requests per batch TPS 160
 $chunkSize = 5000;

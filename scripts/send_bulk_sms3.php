@@ -2,8 +2,8 @@
 <?php
 
 // CONFIGURATION
-$csvFile = '/home/derrick/files/24_APR_2026_IVR_DAR_CLEAN.csv';
-$message = "EPUKA UTI kwa kunywa maji mengi, usizuie mkojo na zingatia usafi wa sehemu za siri. Ikiwa unahisi una dalili za UTI, sikiliza ushauri wa mtaalamu sasa. Jibu 2";
+$csvFile = '/home/derrick/files/13_SEPT_ONETIME_CHATTERS_ACTIVE_SUBS.csv';
+$message = "Bado una swali kuhusu afya yako? Hata kama ni jambo dogo au umejiuliza kwa muda, uliza hapa nikusaidie kupata ushauri wa kitaalamu";
 $smsboxPorts = [6016, 6017, 6018];
 $concurrency = 11; // parallel requests per batch TPS 160
 $chunkSize = 5000;

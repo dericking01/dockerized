@@ -1,6 +1,6 @@
 # Dockerfile
 
-FROM php:8.2-cli
+FROM php:8.2.35-cli
 
 # Install PHP extensions and Postgres client
 RUN apt-get update && apt-get install -y cron unzip netcat-openbsd git sshpass curl libpq-dev postgresql-client \

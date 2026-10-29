@@ -14,8 +14,10 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Input and output file paths
-input_file = "/app/files/output/07-Base-clean/NEW_SOUTH_SP_CLEAN.csv"
-output_file = "/app/files/output/07-Base-clean/NEW_SOUTH_SP_CLEAN_not_in_base.csv"
+input_file = "/app/files/output/07-Base-clean/NEW_LAKE_NSP_CLEAN.csv"
+output_file = "/app/files/output/07-Base-clean/NEW_LAKE_NSP_CLEAN_not_in_base.csv"
+# input_file = "/app/files/output/07-Base-clean/final_merged.csv"
+# output_file = "/app/files/output/07-Base-clean/UNZONED_BASE.csv"
 
 def normalize_msisdn(series):
     # Force string dtype up front so pandas never silently infers float64
